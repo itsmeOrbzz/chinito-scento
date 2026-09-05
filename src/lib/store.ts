@@ -19,141 +19,14 @@ export const supabase = (supabaseUrl && supabaseAnonKey)
   ? createClient(supabaseUrl, supabaseAnonKey)
   : null;
 
-// Initial Seed Data for Instant Local Preview
-const INITIAL_PRODUCTS: Product[] = [
-  {
-    id: 'p1',
-    code: 'SCENT-01',
-    name: 'Elysian Amber (100ml)',
-    description: 'A warm, rich blend of golden amber, Madagascar vanilla, and cedarwood.',
-    selling_price: 1250.00,
-    status: 'ACTIVE',
-    image_url: 'https://images.unsplash.com/photo-1592945403244-b3fbafd7f539?w=600&auto=format&fit=crop&q=80',
-  },
-  {
-    id: 'p2',
-    code: 'SCENT-02',
-    name: 'Midnight Bloom (100ml)',
-    description: 'Mysterious night-blooming jasmine, dark bergamot, and white musk.',
-    selling_price: 1350.00,
-    status: 'ACTIVE',
-    image_url: 'https://images.unsplash.com/photo-1547887537-6158d64c35b3?w=600&auto=format&fit=crop&q=80',
-  },
-  {
-    id: 'p3',
-    code: 'SCENT-03',
-    name: 'Oceanic Vetiver (100ml)',
-    description: 'Crisp sea spray, Haitian vetiver, and sparkling citrus peel.',
-    selling_price: 1150.00,
-    status: 'ACTIVE',
-    image_url: 'https://images.unsplash.com/photo-1523293182086-7651a899d37f?w=600&auto=format&fit=crop&q=80',
-  },
-];
-
-const INITIAL_RAW_MATERIALS: RawMaterial[] = [
-  { id: 'm1', code: 'OIL-AMBER', description: 'Golden Amber Fragrance Oil', category: 'OIL', unit: 'ml', status: 'ACTIVE' },
-  { id: 'm2', code: 'OIL-JASMINE', description: 'Night Jasmine Fragrance Oil', category: 'OIL', unit: 'ml', status: 'ACTIVE' },
-  { id: 'm3', code: 'OIL-VETIVER', description: 'Haitian Vetiver Oil', category: 'OIL', unit: 'ml', status: 'ACTIVE' },
-  { id: 'm4', code: 'EASY', description: 'EasyBlend Perfumers Alcohol Base', category: 'SOLVENT', unit: 'ml', status: 'ACTIVE' },
-  { id: 'm5', code: 'BOTTLE-100ML', description: '100ml Heavy Glass Bottle', category: 'BOTTLE', unit: 'pcs', status: 'ACTIVE' },
-  { id: 'm6', code: 'STICKER-BOTTLE', description: 'Custom Embossed Bottle Label', category: 'STICKER', unit: 'pcs', status: 'ACTIVE' },
-  { id: 'm7', code: 'BOX-GOLD', description: 'Lux Gold Foil Packaging Box', category: 'BOX', unit: 'pcs', status: 'ACTIVE' },
-];
-
-const INITIAL_RECIPES: Recipe[] = [
-  {
-    id: 'r1',
-    product_code: 'SCENT-01',
-    oil_code: 'OIL-AMBER',
-    oil_ml: 25,
-    easy_blend_ml: 75,
-    bottle_code: 'BOTTLE-100ML',
-    bottle_qty: 1,
-    bottle_sticker_code: 'STICKER-BOTTLE',
-    bottle_sticker_qty: 1,
-    box_code: 'BOX-GOLD',
-    box_qty: 1,
-  },
-  {
-    id: 'r2',
-    product_code: 'SCENT-02',
-    oil_code: 'OIL-JASMINE',
-    oil_ml: 30,
-    easy_blend_ml: 70,
-    bottle_code: 'BOTTLE-100ML',
-    bottle_qty: 1,
-    bottle_sticker_code: 'STICKER-BOTTLE',
-    bottle_sticker_qty: 1,
-    box_code: 'BOX-GOLD',
-    box_qty: 1,
-  },
-];
-
-const INITIAL_CUSTOMERS: Customer[] = [
-  { id: 'c1', code: 'C0001', name: 'Perfume Haven Boutique', type: 'Distributor', credit_terms: 30, credit_limit: 50000, status: 'ACTIVE' },
-  { id: 'c2', code: 'C0002', name: 'Scent & Style Kiosk', type: 'Reseller', credit_terms: 15, credit_limit: 20000, status: 'ACTIVE' },
-  { id: 'c3', code: 'C0003', name: 'Walk-In Customer (Retail)', type: 'Walk-In', credit_terms: 0, credit_limit: 0, status: 'ACTIVE' },
-];
-
-const INITIAL_INVENTORY_MOVEMENTS: InventoryMovement[] = [
-  { id: 'inv1', date: '2026-09-01', type: 'PURCHASE', category: 'RAW', item_code: 'OIL-AMBER', qty_in: 5000, qty_out: 0, reference_no: 'PO-2026-0001', remarks: 'Initial Stock' },
-  { id: 'inv2', date: '2026-09-01', type: 'PURCHASE', category: 'RAW', item_code: 'EASY', qty_in: 20000, qty_out: 0, reference_no: 'PO-2026-0001', remarks: 'Initial Stock' },
-  { id: 'inv3', date: '2026-09-01', type: 'PURCHASE', category: 'RAW', item_code: 'BOTTLE-100ML', qty_in: 500, qty_out: 0, reference_no: 'PO-2026-0001', remarks: 'Initial Stock' },
-  { id: 'inv4', date: '2026-09-01', type: 'PURCHASE', category: 'RAW', item_code: 'STICKER-BOTTLE', qty_in: 1000, qty_out: 0, reference_no: 'PO-2026-0001', remarks: 'Initial Stock' },
-  { id: 'inv5', date: '2026-09-01', type: 'PURCHASE', category: 'RAW', item_code: 'BOX-GOLD', qty_in: 500, qty_out: 0, reference_no: 'PO-2026-0001', remarks: 'Initial Stock' },
-  { id: 'inv6', date: '2026-09-02', type: 'PRODUCTION-COMPLETE', category: 'FG', item_code: 'SCENT-01', qty_in: 50, qty_out: 0, reference_no: 'BATCH-001', remarks: 'Initial Batch Produced' },
-  { id: 'inv7', date: '2026-09-02', type: 'PRODUCTION-COMPLETE', category: 'FG', item_code: 'SCENT-02', qty_in: 30, qty_out: 0, reference_no: 'BATCH-002', remarks: 'Initial Batch Produced' },
-];
-
-const INITIAL_BATCHES: ProductionBatch[] = [
-  {
-    id: 'b1',
-    batch_no: 'SCENT-01-20260901-001',
-    product_code: 'SCENT-01',
-    date_mixed: '2026-08-25',
-    maceration_days: 7,
-    ready_date: '2026-09-01',
-    expected_bottles: 50,
-    actual_bottles: 50,
-    variance: 0,
-    status: 'Released',
-    completed_by: 'Master Perfumer',
-    completed_at: '2026-09-01',
-  },
-  {
-    id: 'b2',
-    batch_no: 'SCENT-02-20260904-001',
-    product_code: 'SCENT-02',
-    date_mixed: '2026-09-04',
-    maceration_days: 7,
-    ready_date: '2026-09-11',
-    expected_bottles: 40,
-    status: 'Macerating',
-  },
-];
-
-const INITIAL_SALES_ORDERS: SalesOrder[] = [
-  {
-    id: 'so1',
-    so_no: 'SO-000001',
-    date: '2026-09-04T10:00:00Z',
-    customer_code: 'C0001',
-    customer_name: 'Perfume Haven Boutique',
-    customer_type: 'Distributor',
-    customer_contact: '0917-555-0199',
-    delivery_address: '123 Luxury Lane, Makati City',
-    total_amount: 12500.00,
-    payment_form: 'CREDIT',
-    terms: 30,
-    amount_collected: 0,
-    balance: 12500.00,
-    status: 'PENDING APPROVAL',
-    created_by: 'Public Online Order',
-    lines: [
-      { product_code: 'SCENT-01', product_name: 'Elysian Amber (100ml)', quantity: 10, unit_price: 1250.00, line_amount: 12500.00 }
-    ]
-  }
-];
+// Initial Seed Data for Clean Production State
+const INITIAL_PRODUCTS: Product[] = [];
+const INITIAL_RAW_MATERIALS: RawMaterial[] = [];
+const INITIAL_RECIPES: Recipe[] = [];
+const INITIAL_CUSTOMERS: Customer[] = [];
+const INITIAL_INVENTORY_MOVEMENTS: InventoryMovement[] = [];
+const INITIAL_BATCHES: ProductionBatch[] = [];
+const INITIAL_SALES_ORDERS: SalesOrder[] = [];
 
 // Helper LocalStorage Store Manager for Local Preview Mode
 export const getLocalStore = <T>(key: string, initial: T[]): T[] => {
