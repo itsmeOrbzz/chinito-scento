@@ -1,0 +1,629 @@
+<script>
+
+function savePurchase(){
+
+const invalidItem =
+  purchaseCart.some(
+    item => !item.materialCode
+  );
+
+if(invalidItem){
+
+  alert(
+    "One or more purchase items have no Material Code."
+  );
+
+  return;
+
+}
+
+  const purchase = {
+
+    paymentType:
+      document.getElementById(
+        "paymentType"
+      ).value,
+
+    paymentMode:
+      document.getElementById(
+        "paymentMode"
+      ).value,
+
+    creditor:
+      document.getElementById(
+        "creditor"
+      ).value,
+
+    creditStartDate:
+      document.getElementById(
+        "creditStartDate"
+      ).value,
+
+    installmentMonths:
+      Number(
+        document.getElementById(
+          "installmentMonths"
+        ).value
+      ) || 0,
+
+    monthlyAmortization:
+  parseFloat(
+    document
+      .getElementById(
+        "monthlyAmortization"
+      )
+      .value
+      .replace(/,/g,'')
+  ) || 0,
+
+    totalAmountDue:
+  parseFloat(
+    document
+      .getElementById(
+        "totalAmountDue"
+      )
+      .value
+      .replace(/,/g,'')
+  ) || 0,
+
+    purchaseDate:
+      document.getElementById(
+        "purchaseDate"
+      ).value,
+
+    supplier:
+      document.getElementById(
+        "supplier"
+      ).value.trim(),
+
+    invoiceNo:
+      document.getElementById(
+        "invoiceNo"
+      ).value.trim(),
+
+    remarks:
+      document.getElementById(
+        "remarks"
+      ).value.trim()
+
+  };
+
+  if(!purchase.purchaseDate){
+
+    alert("Date is required.");
+
+    return;
+
+  }
+
+  if(!purchase.supplier){
+
+    alert("Supplier is required.");
+
+    return;
+
+  }
+
+  if(!purchase.invoiceNo){
+
+    alert("Invoice No is required.");
+
+    return;
+
+  }
+
+  if(purchaseCart.length == 0){
+
+    alert(
+      "Add at least one item."
+    );
+
+    return;
+
+  }
+
+  purchase.items =
+    purchaseCart;
+
+  google.script.run
+
+    .withSuccessHandler(
+      function(msg){
+
+        document.getElementById(
+          "message"
+        ).innerHTML =
+          msg;
+
+        purchaseCart = [];
+
+        refreshPurchaseSummary();
+
+        clearPurchaseForm();
+
+      }
+    )
+
+    .savePurchase(
+      purchase
+    );
+
+}
+
+function addPurchaseItem(){
+
+  const unit =
+    document.getElementById(
+      "materialUnit"
+    ).innerHTML;
+
+  let volume = 1;
+
+  if(unit == "ml"){
+
+    volume =
+      Number(
+        document.getElementById(
+          "volume"
+        ).value
+      );
+
+  }
+
+  const qty =
+    Number(
+      document.getElementById(
+        "quantityPurchased"
+      ).value
+    );
+
+  const unitCost =
+    Number(
+      document.getElementById(
+        "unitCost"
+      ).value
+      .replace(/,/g,'')
+    );
+
+  if(qty <= 0){
+
+    alert(
+      "Quantity required."
+    );
+
+    return;
+  }
+
+  if(unitCost <= 0){
+
+    alert(
+      "Unit Cost required."
+    );
+
+    return;
+  }
+
+const materialCode =
+  document.getElementById(
+    "materialCode"
+  ).value;
+
+if(!materialCode){
+
+  alert(
+    "Please select a Material Code."
+  );
+
+  return;
+
+}
+
+if(
+  unit == "ml" &&
+  volume <= 0
+){
+
+  alert(
+    "Volume is required."
+  );
+
+  return;
+
+}
+
+  purchaseCart.push({
+
+    materialCode:
+      materialCode,
+
+    quantityPurchased:
+      qty,
+
+    volume:
+      volume,
+
+    unit:
+      unit,
+
+    unitCost:
+      unitCost,
+
+    totalCost:
+      qty * unitCost
+
+  });
+
+document.getElementById(
+  "materialCode"
+).selectedIndex = 0;
+
+document.getElementById(
+  "materialDescription"
+).value = "";
+
+document.getElementById(
+  "quantityPurchased"
+).value = "";
+
+document.getElementById(
+  "volume"
+).value = "";
+
+document.getElementById(
+  "materialUnit"
+).innerHTML = "";
+
+document.getElementById(
+  "unitCost"
+).value = "0.00";
+
+document.getElementById(
+  "volumeRow"
+).style.display = "none";
+
+  refreshPurchaseSummary();
+  calculateCreditPurchase();
+
+}
+
+function refreshPurchaseSummary(){
+
+  let html = "";
+
+  let total = 0;
+
+  purchaseCart.forEach(
+    function(item,index){
+
+      total +=
+        item.totalCost;
+
+     html +=
+
+  "<tr>"+
+
+  "<td>" +
+
+  "<button onclick='deletePurchaseItem(" +
+  index +
+  ")'>X</button>" +
+
+  "</td>"+
+
+  "<td>"+
+  item.materialCode+
+  "</td>"+
+
+  "<td>"+
+  item.quantityPurchased+
+  "</td>"+
+
+  "<td>"+
+  formatAmount(
+    item.totalCost
+  )+
+  "</td>"+
+
+  "</tr>";
+
+    }
+  );
+
+  document.getElementById(
+    "purchaseSummaryBody"
+  ).innerHTML =
+    html;
+
+  document.getElementById(
+    "purchaseTotal"
+  ).innerHTML =
+    formatAmount(total);
+
+}
+
+function deletePurchaseItem(index){
+
+  purchaseCart.splice(
+    index,
+    1
+  );
+
+  refreshPurchaseSummary();
+calculateCreditPurchase();
+
+}
+
+
+
+function loadRawMaterials(){
+
+  google.script.run
+    .withSuccessHandler(function(materials){
+
+rawMaterials = materials;
+
+      const ddl =
+        document.getElementById(
+          "materialCode"
+        );
+
+      ddl.innerHTML =
+  '<option value="">-- Select Material --</option>';
+
+      materials.forEach(function(item){
+
+        const option =
+          document.createElement("option");
+
+        option.value =
+          item.code;
+
+        option.text =
+          item.code +
+          " - " +
+          item.description;
+
+        ddl.appendChild(option);
+
+      });
+
+    })
+    .withFailureHandler(function(error){
+
+      alert(
+        "Error loading materials: " +
+        error.message
+      );
+
+    })
+    .getRawMaterials();
+
+}
+
+function showMaterialDescription(){
+
+  const code =
+
+    document.getElementById(
+      "materialCode"
+    ).value;
+
+  const material =
+
+    rawMaterials.find(
+      m => m.code === code
+    );
+
+  document.getElementById(
+    "materialDescription"
+  ).value =
+
+    material
+      ? material.description
+      : "";
+
+  document.getElementById(
+    "materialUnit"
+  ).innerHTML =
+
+    material
+      ? material.unit
+      : "";
+
+  if(
+    material &&
+    material.unit == "ml"
+  ){
+
+    document.getElementById(
+      "volumeRow"
+    ).style.display = "";
+
+  }
+  else{
+
+    document.getElementById(
+      "volumeRow"
+    ).style.display = "none";
+
+    document.getElementById(
+      "volume"
+    ).value = "";
+
+  }
+
+}
+
+function clearPurchaseForm(){
+
+  document.getElementById(
+    "purchaseDate"
+  ).value = "";
+
+  document.getElementById(
+    "supplier"
+  ).value = "";
+
+  document.getElementById(
+    "invoiceNo"
+  ).value = "";
+
+  document.getElementById(
+    "materialCode"
+  ).selectedIndex = 0;
+
+  document.getElementById(
+    "materialDescription"
+  ).value = "";
+
+  document.getElementById(
+    "quantityPurchased"
+  ).value = "";
+
+  document.getElementById(
+    "volume"
+  ).value = "";
+
+  document.getElementById(
+    "materialUnit"
+  ).innerHTML = "";
+
+  document.getElementById(
+    "unitCost"
+  ).value = "0.00";
+
+  document.getElementById(
+    "remarks"
+  ).value = "";
+
+  document.getElementById(
+    "volumeRow"
+  ).style.display = "none";
+
+}
+
+function togglePurchaseCreditFields(){
+
+  const paymentType =
+
+    document.getElementById(
+      "paymentType"
+    ).value;
+
+  const show =
+    paymentType == "CREDIT";
+
+  document.getElementById(
+    "creditModeRow"
+  ).style.display =
+    show ? "" : "none";
+
+  document.getElementById(
+    "creditorRow"
+  ).style.display =
+    show ? "" : "none";
+
+  document.getElementById(
+    "creditStartDateRow"
+  ).style.display =
+    show ? "" : "none";
+
+  document.getElementById(
+    "installmentMonthsRow"
+  ).style.display =
+    show ? "" : "none";
+
+  document.getElementById(
+    "monthlyAmortRow"
+  ).style.display =
+    show ? "" : "none";
+
+  document.getElementById(
+    "totalDueRow"
+  ).style.display =
+    show ? "" : "none";
+
+    togglePaymentMode();
+
+}
+
+function togglePaymentMode(){
+
+  const mode =
+    document.getElementById(
+      "paymentMode"
+    ).value;
+
+  if(mode == "ONETIME"){
+
+    document.getElementById(
+      "installmentMonthsRow"
+    ).style.display = "none";
+
+    document.getElementById(
+      "monthlyAmortRow"
+    ).style.display = "none";
+
+    document.getElementById(
+      "totalDueRow"
+    ).style.display = "";
+
+    document.getElementById(
+      "totalAmountDue"
+    ).readOnly = false;
+
+  }
+  else{
+
+    document.getElementById(
+      "installmentMonthsRow"
+    ).style.display = "";
+
+    document.getElementById(
+      "monthlyAmortRow"
+    ).style.display = "";
+
+    document.getElementById(
+      "totalDueRow"
+    ).style.display = "";
+
+    document.getElementById(
+      "totalAmountDue"
+    ).readOnly = true;
+
+    calculateCreditPurchase();
+
+  }
+
+}
+
+function calculateCreditPurchase(){
+
+  const months =
+    Number(
+      document.getElementById(
+        "installmentMonths"
+      ).value
+    ) || 0;
+
+  const monthly =
+    parseFloat(
+      document.getElementById(
+        "monthlyAmortization"
+      )
+      .value
+      .replace(/,/g,'')
+    ) || 0;
+
+  const totalDue =
+    months * monthly;
+
+  document.getElementById(
+    "totalAmountDue"
+  ).value =
+    formatAmount(totalDue);
+
+}
+
+
+</script>

@@ -1,0 +1,232 @@
+<script>
+
+function hideAllSections(){
+
+  document.getElementById(
+    "dashboard"
+  ).style.display = "none";
+
+  document.getElementById(
+    "purchaseSection"
+  ).style.display = "none";
+
+  document.getElementById(
+    "productionSection"
+  ).style.display = "none";
+
+  document.getElementById(
+    "productionCompletionSection"
+  ).style.display = "none";
+
+  document.getElementById(
+    "customerSection"
+  ).style.display = "none";
+
+  document.getElementById(
+    "salesOrdersSection"
+  ).style.display = "none";
+
+  document.getElementById(
+    "collectionsSection"
+  ).style.display = "none";
+
+  document.getElementById(
+    "salesReturnSection"
+  ).style.display = "none";
+
+  document.getElementById(
+    "customerAnalyticsSection"
+  ).style.display = "none";
+
+  document.getElementById(
+    "accountsReceivableSection"
+  ).style.display = "none";
+
+  document.getElementById(
+    "accountsPayableSection"
+  ).style.display = "none";
+
+  document.getElementById(
+    "invoiceSection"
+  ).style.display = "none";
+
+}
+
+
+
+function showDashboard(){
+
+  hideAllSections();
+
+  document.getElementById(
+    "dashboard"
+  ).style.display = "block";
+
+}
+
+
+
+function showPurchase(){
+
+  hideAllSections();
+
+  document.getElementById(
+    "purchaseSection"
+  ).style.display = "block";
+
+  loadRawMaterials();
+
+}
+
+
+
+function showProduction(){
+
+  hideAllSections();
+
+  document.getElementById(
+    "productionSection"
+  ).style.display = "block";
+
+  loadProductionProducts();
+
+  google.script.run
+
+    .withSuccessHandler(function(days){
+
+      document.getElementById(
+        "macerationDays"
+      ).value = days;
+
+    })
+
+    .getSetting(
+      "MacerationDays"
+    );
+
+}
+
+
+
+function showCustomers(){
+
+  hideAllSections();
+
+  document.getElementById(
+    "customerSection"
+  ).style.display = "block";
+
+  updateCreditTerms();
+
+}
+
+
+
+function showSalesOrders(){
+
+  hideAllSections();
+
+  document.getElementById(
+    "salesOrdersSection"
+  ).style.display = "block";
+
+  loadCustomers();
+
+  loadProductsDropdown();
+
+}
+
+
+
+function showSalesReturns(){
+
+  hideAllSections();
+
+  document.getElementById(
+    "salesReturnSection"
+  ).style.display = "block";
+
+  loadSalesReturnSONumbers();
+
+}
+
+
+
+function showInvoices(){
+
+  hideAllSections();
+
+  document.getElementById(
+    "invoiceSection"
+  ).style.display =
+    "block";
+
+  loadInvoiceList();
+
+}
+
+
+
+function showCustomerAnalytics(){
+
+  hideAllSections();
+
+  document.getElementById(
+    "customerAnalyticsSection"
+  ).style.display = "block";
+
+}
+
+
+
+function showAccountsReceivable(){
+
+  hideAllSections();
+
+  document.getElementById(
+    "accountsReceivableSection"
+  ).style.display = "block";
+
+}
+
+
+
+function showCollections(){
+
+  hideAllSections();
+
+  document.getElementById(
+    "collectionsSection"
+  ).style.display = "block";
+
+  loadCollectionSOs();
+
+}
+
+
+
+function showAccountsPayable(){
+
+  hideAllSections();
+
+  document.getElementById(
+    "accountsPayableSection"
+  ).style.display = "block";
+
+}
+
+
+
+function showProductionCompletion(){
+
+  hideAllSections();
+
+  document.getElementById(
+    "productionCompletionSection"
+  ).style.display = "block";
+
+  loadReadyBatches();
+
+}
+
+</script>

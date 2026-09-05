@@ -1,0 +1,407 @@
+<script>
+
+function loadCustomers(){
+
+  google.script.run
+
+    .withSuccessHandler(function(data){
+
+      customerList = data;
+
+      let dropdown =
+        document.getElementById(
+          "customerSelect"
+        );
+
+      dropdown.innerHTML =
+        '<option value="">Select Customer</option>';
+
+      data.forEach(function(customer){
+
+        dropdown.innerHTML +=
+
+          '<option value="' +
+
+          customer.code +
+
+          '">' +
+
+          customer.name +
+
+          '</option>';
+
+      });
+
+    })
+
+    .getCustomerNames();
+
+}
+
+
+
+
+
+function generateCustomerAnalytics(){
+
+  const month =
+    Number(
+      document.getElementById(
+        "analyticsMonth"
+      ).value
+    );
+
+  const year =
+    Number(
+      document.getElementById(
+        "analyticsYear"
+      ).value
+    );
+
+  google.script.run
+    .withSuccessHandler(
+      displayCustomerAnalytics
+    )
+    .getCustomerSalesAnalytics(
+      month,
+      year
+    );
+
+}
+
+function displayCustomerAnalytics(data){
+
+  let html =
+    "<h2>Customer Sales Analytics</h2>";
+
+  html +=
+    "<table>" +
+    "<tr>" +
+    "<th>Customer</th>" +
+    "<th>Bottles</th>" +
+    "<th>Sales</th>" +
+    "<th>% of Total Sales</th>" +
+    "</tr>";
+
+  let customerNames = [];
+
+  for(let customer in data){
+
+    customerNames.push(customer);
+
+    html +=
+
+      "<tr>" +
+
+      "<td>" +
+      customer +
+      "</td>" +
+
+      "<td>" +
+      data[customer].bottles +
+      "</td>" +
+
+      "<td>₱" +
+      formatAmount(
+        data[customer].amount
+      ) +
+      "</td>" +
+
+      "<td>" +
+      data[customer].percent.toFixed(2) +
+      "%" +
+      "</td>" +
+
+      "</tr>";
+
+  }
+
+  html += "</table>";
+
+  document.getElementById(
+    "analyticsResult"
+  ).innerHTML = html;
+
+  let ddl =
+    document.getElementById(
+      "customerAnalyticsSelect"
+    );
+
+  ddl.innerHTML =
+    '<option value="">Select Customer</option>';
+
+  customerNames.forEach(function(customer){
+
+    ddl.innerHTML +=
+
+      '<option value="' +
+      customer +
+      '">' +
+      customer +
+      '</option>';
+
+  });
+
+  document.getElementById(
+    "customerProductSection"
+  ).style.display =
+    "block";
+
+}
+
+function loadCustomerProducts(){
+
+  const customer =
+
+    document.getElementById(
+      "customerAnalyticsSelect"
+    ).value;
+
+  if(!customer){
+    return;
+  }
+
+  const month =
+
+    Number(
+      document.getElementById(
+        "analyticsMonth"
+      ).value
+    );
+
+  const year =
+
+    Number(
+      document.getElementById(
+        "analyticsYear"
+      ).value
+    );
+
+  google.script.run
+
+    .withSuccessHandler(
+      showCustomerProducts
+    )
+
+    .getCustomerProductBreakdown(
+      customer,
+      month,
+      year
+    );
+
+}
+
+function showCustomerProducts(data){
+
+  let html =
+
+    "<h3>Products Purchased</h3>";
+
+  html +=
+
+    "<table>" +
+
+    "<tr>" +
+
+    "<th>Product</th>" +
+
+    "<th>Total Bottles</th>" +
+
+    "</tr>";
+
+  for(let product in data){
+
+    html +=
+
+      "<tr>" +
+
+      "<td>" +
+      product +
+      "</td>" +
+
+      "<td>" +
+      data[product] +
+      "</td>" +
+
+      "</tr>";
+
+  }
+
+  html += "</table>";
+
+  document.getElementById(
+    "customerProductsResult"
+  ).innerHTML =
+    html;
+
+}
+
+
+
+function loadCustomerDetails(){
+
+  const selectedCode =
+
+    document.getElementById(
+      "customerSelect"
+    ).value;
+
+  const customer =
+
+    customerList.find(
+      c => c.code === selectedCode
+    );
+
+  if(!customer){
+    return;
+  }
+
+  document.getElementById(
+    "soCustomerType"
+  ).value = customer.type;
+
+  document.getElementById(
+    "soCreditTerms"
+  ).value = customer.terms;
+
+}
+
+
+
+function updateCreditTerms(){
+
+  const customerType =
+
+    document.getElementById(
+      "customerType"
+    ).value;
+
+  const creditTermsField =
+
+    document.getElementById(
+      "creditTerms"
+    );
+
+  if(customerType == "Distributor"){
+
+    creditTermsField.value = 15;
+
+  }
+  else if(customerType == "Reseller"){
+
+    creditTermsField.value = 7;
+
+  }
+  else{
+
+    creditTermsField.value = 0;
+
+  }
+
+}
+
+
+
+function saveCustomer(){
+
+  google.script.run
+
+    .withSuccessHandler(function(customerCode){
+
+      document.getElementById(
+        "customerCode"
+      ).value = customerCode;
+
+      const customer = {
+
+        customerCode:
+          customerCode,
+
+        customerName:
+          document.getElementById(
+            "customerName"
+          ).value.trim(),
+
+        customerType:
+          document.getElementById(
+            "customerType"
+          ).value,
+
+        creditTerms:
+          document.getElementById(
+            "creditTerms"
+          ).value,
+
+        creditLimit:
+          document.getElementById(
+            "creditLimit"
+          )
+          .value
+          .replace(/,/g,'')
+
+      };
+
+      /* VALIDATION */
+
+      if(
+        customer.customerName === ""
+      ){
+
+        alert(
+          "Customer Name is required."
+        );
+
+        return;
+
+      }
+
+      google.script.run
+
+        .withSuccessHandler(function(msg){
+
+          document.getElementById(
+            "customerMessage"
+          ).innerHTML = msg;
+
+          clearCustomerForm();
+
+        })
+
+        .saveCustomer(customer);
+
+    })
+
+    .generateCustomerCode();
+
+}
+
+
+
+function clearCustomerForm(){
+
+  document.getElementById(
+    "customerCode"
+  ).value = "";
+
+  document.getElementById(
+    "customerName"
+  ).value = "";
+
+  document.getElementById(
+    "customerType"
+  ).selectedIndex = 0;
+
+  document.getElementById(
+    "creditTerms"
+  ).value = 15;
+
+  document.getElementById(
+    "creditLimit"
+  ).value = "0.00";
+
+}
+
+let customerList = [];
+
+
+</script>

@@ -1,0 +1,288 @@
+<script>
+
+function loadInventoryAsOf(){
+
+  const reportDate =
+
+    document.getElementById(
+      "inventoryDate"
+    ).value;
+
+  if(!reportDate){
+
+    alert(
+      "Please select a report date."
+    );
+
+    return;
+
+  }
+
+  google.script.run
+
+    .withSuccessHandler(
+      showInventoryAsOf
+    )
+
+    .getInventoryAsOf(
+      reportDate
+    );
+
+}
+
+function showInventoryAsOf(data){
+
+  let html =
+
+    "<h2>Inventory As Of Report</h2>";
+
+  for(let category in data){
+
+    html += "<hr>";
+
+    html +=
+
+      "<h3>" +
+      category +
+      "</h3>";
+
+    html +=
+      "<table>";
+
+    html +=
+
+      "<tr>" +
+
+      "<th>Material</th>" +
+
+      "<th>Stock</th>" +
+
+      "<th>Unit</th>" +
+
+      "</tr>";
+
+    data[category].forEach(function(item){
+
+      html +=
+
+        "<tr>" +
+
+        "<td>" +
+        item.code +
+        "</td>" +
+
+        "<td>" +
+        item.stock +
+        "</td>" +
+
+        "<td>" +
+        item.unit +
+        "</td>" +
+
+        "</tr>";
+
+    });
+
+    html += "</table>";
+
+  }
+
+  document.getElementById(
+    "result"
+  ).innerHTML = html;
+
+}
+
+
+
+function loadFGInventoryAsOf(){
+
+  const reportDate =
+
+    document.getElementById(
+      "fgInventoryDate"
+    ).value;
+
+  if(!reportDate){
+
+    alert(
+      "Please select a report date."
+    );
+
+    return;
+
+  }
+
+  google.script.run
+
+    .withSuccessHandler(
+      showFGInventoryAsOf
+    )
+
+    .getFinishedGoodsInventoryAsOf(
+      reportDate
+    );
+
+}
+
+function showFGInventoryAsOf(data){
+
+  let html =
+
+    "<h2>Finished Goods Inventory As Of Report</h2>";
+
+  html += "<table>";
+
+  html +=
+
+    "<tr>" +
+
+    "<th>Product</th>" +
+
+    "<th>Available Stocks</th>" +
+
+    "</tr>";
+
+  for(let item in data){
+
+    html +=
+
+      "<tr>" +
+
+      "<td>" +
+      item +
+      "</td>" +
+
+      "<td>" +
+      data[item] +
+      "</td>" +
+
+      "</tr>";
+
+  }
+
+  html += "</table>";
+
+  document.getElementById(
+    "result"
+  ).innerHTML = html;
+
+}
+
+
+
+function loadFGAS(){
+
+  google.script.run
+
+    .withSuccessHandler(
+      showFGAS
+    )
+
+    .getFGAS();
+
+}
+
+function showFGAS(data){
+
+  let html =
+
+    "<h2>Finished Goods Available For Sale</h2>";
+
+  html += "<table>";
+
+  html +=
+
+    "<tr>" +
+
+    "<th>Product</th>" +
+
+    "<th>Available</th>" +
+
+    "</tr>";
+
+  for(let item in data){
+
+    html +=
+
+      "<tr>" +
+
+      "<td>" +
+      item +
+      "</td>" +
+
+      "<td>" +
+      data[item] +
+      "</td>" +
+
+      "</tr>";
+
+  }
+
+  html += "</table>";
+
+  document.getElementById(
+    "result"
+  ).innerHTML = html;
+
+}
+
+function loadProducts(){
+
+  google.script.run
+    .withSuccessHandler(showProducts)
+    .getProducts();
+
+}
+
+function showProducts(data){
+
+  let html = `
+
+    <h2>Products</h2>
+
+    <table style="width:100%; border:none;">
+
+      <tr>
+        <th>MEN</th>
+        <th>WOMEN</th>
+        <th>UNISEX</th>
+      </tr>
+
+      <tr>
+
+        <td valign="top">
+          Antonito<br>
+          Aurelius<br>
+          Dwight<br>
+          Gab
+        </td>
+
+        <td valign="top">
+          Blanche<br>
+          Cucamella<br>
+          Emily<br>
+          Kitty<br>
+          Veloura
+        </td>
+
+        <td valign="top">
+          Reine de Nuit
+        </td>
+
+      </tr>
+
+    </table>
+
+  `;
+
+  document.getElementById(
+    "result"
+  ).innerHTML = html;
+
+}
+
+
+
+
+</script>

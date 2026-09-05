@@ -1,0 +1,101 @@
+<!-- DASHBOARD -->
+
+<div id="dashboard">
+
+  <h2>Transactions</h2>
+
+  <button onclick="loadProducts()">
+    Products
+  </button>
+
+  <button onclick="showCustomers()">
+    Customers
+  </button>
+
+   <button onclick="showPurchase()">
+    Purchases
+  </button>
+
+  <button onclick="showProduction()">
+    Production
+  </button>
+
+  <button onclick="showProductionCompletion()">
+    Production Completion
+  </button>
+
+  <button onclick="showSalesOrders()">
+    Sales Orders
+  </button>
+
+  <button onclick="showInvoices()">
+  Sales Invoices
+  </button>
+
+  <h3>
+
+
+  <button onclick="showSalesReturns()">
+    Sales Return
+  </button>
+
+  <button onclick="showCollections()">
+  Collections
+  </button>
+
+  <br><br>
+
+  <div id="result"></div>
+
+  <hr>
+
+  <h2>Reports</h2>
+
+  <button onclick="loadFGAS()">
+    FG Available For Sale
+  </button>
+
+  <button onclick="showCustomerAnalytics()">
+  Customer Sales Analytics
+  </button>
+
+  <button onclick="showProductCostingReport()">
+  Product Profitability
+  </button>
+
+  <button onclick="loadProductVelocityReport()">
+  Product Velocity Report
+  </button>
+
+  <button onclick="showAccountsReceivable()">
+  Accounts Receivable
+  </button>
+
+<h3>
+
+  <button onclick="showAccountsPayable()">
+  Accounts Payable
+  </button>
+
+  <h3>Inventory As Of Date</h3>
+
+  <input type="date" id="inventoryDate">
+
+
+  <br><br>
+  
+  <button onclick="loadInventoryAsOf()">
+    Generate Inventory Report
+  </button>
+
+  <br><br>
+
+  <h3>Finished Goods Inventory As Of Date</h3>
+
+  <input type="date" id="fgInventoryDate">
+
+  <button onclick="loadFGInventoryAsOf()">
+    Generate FG Inventory Report
+  </button>
+
+</div>

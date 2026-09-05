@@ -1,0 +1,579 @@
+<script>
+
+function loadProductsDropdown(){
+
+  google.script.run
+
+    .withSuccessHandler(function(data){
+
+      productList = data;
+
+      let dropdown =
+        document.getElementById(
+          "productSelect"
+        );
+
+      dropdown.innerHTML =
+        '<option value="">Select Product</option>';
+
+      data.forEach(function(product){
+
+        dropdown.innerHTML +=
+
+          '<option value="' +
+
+          product.code +
+
+          '">' +
+
+          product.name +
+
+          '</option>';
+
+      });
+
+    })
+
+    .getProductList();
+
+}
+
+
+
+function loadFGAvailability(){
+
+  const productCode =
+
+    document.getElementById(
+      "productSelect"
+    ).value;
+
+  const selectedProduct =
+
+    productList.find(
+      p => p.code === productCode
+    );
+
+  if(selectedProduct){
+
+    document.getElementById(
+      "salesPrice"
+    ).value =
+
+      formatAmount(
+        selectedProduct.sellingPrice
+      );
+
+  }
+
+  google.script.run
+
+    .withSuccessHandler(function(data){
+
+  let available =
+    Number(
+      data[productCode] || 0
+    );
+
+  let cartQty = 0;
+
+  salesCart.forEach(function(item){
+
+    if(item.productCode == productCode){
+
+      cartQty += item.qty;
+
+    }
+
+  });
+
+  available -= cartQty;
+
+  if(available < 0){
+
+    available = 0;
+
+  }
+
+  document.getElementById(
+    "availableFG"
+  ).value =
+    formatAmount(available);
+
+})
+
+    .getFGAS();
+
+  document.getElementById(
+    "qtyValidation"
+  ).innerHTML = "";
+
+  document.getElementById(
+    "salesQty"
+  ).value = "";
+
+}
+
+
+
+function validateQuantity(){
+
+  const qty =
+    Number(
+      document.getElementById(
+        "salesQty"
+      ).value
+    );
+
+  const available =
+
+    Number(
+
+      document.getElementById(
+        "availableFG"
+      )
+      .value
+      .replace(/,/g,'')
+
+    );
+
+  if(qty > available){
+
+    document.getElementById(
+      "qtyValidation"
+    ).innerHTML =
+
+      "⚠ QUANTITY REQUESTED IS MORE THAN THE AVAILABLE STOCK.";
+
+  }
+  else{
+
+    document.getElementById(
+      "qtyValidation"
+    ).innerHTML = "";
+
+  }
+
+}
+
+function addToOrder(){
+
+  const customer =
+    document.getElementById(
+      "customerSelect"
+    );
+
+  const product =
+    document.getElementById(
+      "productSelect"
+    );
+
+  const qty =
+    Number(
+      document.getElementById(
+        "salesQty"
+      ).value
+    );
+
+  const availableFG =
+    Number(
+      document.getElementById(
+        "availableFG"
+      )
+      .value
+      .replace(/,/g,'')
+    );
+
+  const price =
+    Number(
+      document.getElementById(
+        "salesPrice"
+      )
+      .value
+      .replace(/,/g,'')
+    );
+
+  if(
+    document.getElementById(
+      "customerSelect"
+    ).value == ""
+  ){
+
+    alert(
+      "Please select a customer."
+    );
+
+    return;
+
+  }
+
+  if(!product.value){
+
+    alert(
+      "Please select a product."
+    );
+
+    return;
+
+  }
+
+  if(availableFG <= 0){
+
+    alert(
+      "No available inventory for this product."
+    );
+
+    return;
+
+  }
+
+  if(qty <= 0){
+
+    alert(
+      "Quantity must be greater than zero."
+    );
+
+    return;
+
+  }
+
+  if(qty > availableFG){
+
+    alert(
+
+      "Insufficient inventory.\n\n" +
+
+      "Available: " +
+      availableFG +
+
+      "\nRequested: " +
+      qty
+
+    );
+
+    return;
+
+  }
+
+  if(price <= 0){
+
+    alert(
+      "Unit Price must be greater than zero."
+    );
+
+    return;
+
+  }
+
+  salesCart.push({
+
+    productCode:
+      product.value,
+
+    productName:
+      product.options[
+        product.selectedIndex
+      ].text,
+
+    qty:
+      qty,
+
+    price:
+      price,
+
+    amount:
+      qty * price
+
+  });
+
+  document.getElementById(
+    "summaryCustomer"
+  ).innerHTML =
+
+    customer.options[
+      customer.selectedIndex
+    ].text;
+
+  document.getElementById(
+    "summaryPayment"
+  ).innerHTML =
+
+    document.getElementById(
+      "paymentForm"
+    ).value;
+
+  refreshOrderSummary();
+  loadFGAvailability();
+
+}
+
+
+
+function refreshOrderSummary(){
+
+  let html = "";
+
+  let totalQty = 0;
+
+  let totalAmount = 0;
+
+  salesCart.forEach(function(item,index){
+
+    totalQty += item.qty;
+
+    totalAmount += item.amount;
+
+    html +=
+
+      "<tr>" +
+
+      "<td>" +
+
+      "<input type='radio' " +
+      "name='selectedOrder' " +
+      "value='" + index + "'>" +
+
+      "</td>" +
+
+      "<td>" +
+      item.productName +
+      "</td>" +
+
+      "<td>" +
+      item.qty +
+      "</td>" +
+
+      "<td>" +
+      formatAmount(item.price) +
+      "</td>" +
+
+      "<td>" +
+      formatAmount(item.amount) +
+      "</td>" +
+
+      "</tr>";
+
+  });
+
+  document.getElementById(
+    "orderSummaryBody"
+  ).innerHTML = html;
+
+  document.getElementById(
+    "totalQty"
+  ).innerHTML = totalQty;
+
+  document.getElementById(
+    "totalAmount"
+  ).innerHTML = formatAmount(
+    totalAmount
+  );
+
+}
+
+
+
+function removeSelectedLine(){
+
+  const selected =
+    document.querySelector(
+      'input[name="selectedOrder"]:checked'
+    );
+
+  if(!selected){
+    alert(
+      "Please select an item first."
+    );
+    return;
+  }
+
+  salesCart.splice(
+    Number(selected.value),
+    1
+  );
+
+  refreshOrderSummary();
+
+  loadFGAvailability();
+
+}
+
+
+function clearSalesOrder(){
+
+  salesCart = [];
+
+  refreshOrderSummary();
+
+  document.getElementById(
+    "summaryCustomer"
+  ).innerHTML = "-";
+
+  document.getElementById(
+    "summaryPayment"
+  ).innerHTML = "-";
+
+  document.getElementById(
+    "customerSelect"
+  ).selectedIndex = 0;
+
+  document.getElementById(
+    "productSelect"
+  ).selectedIndex = 0;
+
+  document.getElementById(
+    "availableFG"
+  ).value = "";
+
+  document.getElementById(
+    "salesQty"
+  ).value = "";
+
+  document.getElementById(
+    "salesPrice"
+  ).value = "";
+
+  document.getElementById(
+    "qtyValidation"
+  ).innerHTML = "";
+
+}
+
+
+
+function saveSalesTransaction(){
+
+  if(salesCart.length == 0){
+
+    alert(
+      "Please add products first."
+    );
+
+    return;
+
+  }
+
+  const customerCode =
+
+    document.getElementById(
+      "customerSelect"
+    ).value;
+
+  const customerName =
+
+    document.getElementById(
+      "customerSelect"
+    ).options[
+
+      document.getElementById(
+        "customerSelect"
+      ).selectedIndex
+
+    ].text;
+
+  const customerType =
+
+    document.getElementById(
+      "soCustomerType"
+    ).value;
+
+  const paymentForm =
+
+    document.getElementById(
+      "paymentForm"
+    ).value;
+
+  const orderLines =
+
+    salesCart.map(function(item){
+
+      return {
+
+        productCode:
+          item.productCode,
+
+        productName:
+          item.productName,
+
+        quantity:
+          item.qty,
+
+        unitPrice:
+          item.price,
+
+        lineAmount:
+          item.amount
+
+      };
+
+    });
+
+  google.script.run
+
+    .withSuccessHandler(function(result){
+
+      document.getElementById(
+        "salesOrderMessage"
+      ).innerHTML =
+
+        "Sales Order Created : " +
+
+        result.soNumber +
+
+        "<br>Invoice Created : " +
+
+        result.invoiceNumber;
+
+      loadInvoiceList();
+
+      viewInvoice(
+        result.invoiceNumber
+      );
+
+      if(
+        typeof showInvoices ===
+        "function"
+      ){
+
+        showInvoices();
+
+      }
+
+      clearSalesOrder();
+
+    })
+
+    .withFailureHandler(function(error){
+
+      alert(
+
+        "ERROR:\n\n" +
+
+        error.message
+
+      );
+
+    })
+
+    .saveSalesOrder(
+
+      customerCode,
+
+      customerName,
+
+      customerType,
+
+      paymentForm,
+
+      orderLines,
+
+      "Edson"
+
+    );
+
+}
+let productList = [];
+let salesCart = [];
+
+
+</script>

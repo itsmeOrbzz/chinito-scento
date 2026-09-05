@@ -1,0 +1,141 @@
+<script>
+
+function formatAmount(value){
+
+  if(
+    value === "" ||
+    value === null ||
+    value === undefined
+  ){
+    return "";
+  }
+
+  return Number(
+    String(value).replace(/,/g,'')
+  ).toLocaleString(
+    "en-US",
+    {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2
+    }
+  );
+
+}
+
+
+
+function formatField(field){
+
+  let value =
+    field.value.replace(/,/g,'');
+
+  if(
+    value === "" ||
+    isNaN(value)
+  ){
+
+    field.value = "0.00";
+
+    return;
+
+  }
+
+  field.value =
+
+    Number(value)
+
+      .toLocaleString(
+
+        "en-US",
+
+        {
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2
+        }
+
+      );
+
+}
+
+
+
+function formatMoney(value){
+
+  return Number(value)
+
+    .toLocaleString(
+
+      "en-PH",
+
+      {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+      }
+
+    );
+
+}
+
+
+
+function formatDateOnly(value){
+
+  if(
+    !value
+  ){
+    return "";
+  }
+
+  const date =
+    new Date(value);
+
+  if(
+    isNaN(date.getTime())
+  ){
+    return value;
+  }
+
+  return date.toLocaleDateString(
+    "en-PH",
+    {
+      year: "numeric",
+      month: "short",
+      day: "2-digit"
+    }
+  );
+
+}
+
+
+
+function formatDateTime(value){
+
+  if(
+    !value
+  ){
+    return "";
+  }
+
+  const date =
+    new Date(value);
+
+  if(
+    isNaN(date.getTime())
+  ){
+    return value;
+  }
+
+  return date.toLocaleString(
+    "en-PH",
+    {
+      year: "numeric",
+      month: "short",
+      day: "2-digit",
+      hour: "2-digit",
+      minute: "2-digit"
+    }
+  );
+
+}
+
+</script>

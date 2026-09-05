@@ -1,0 +1,236 @@
+<script>
+
+function generateARReport(){
+
+  const type =
+    document.getElementById(
+      "arReportType"
+    ).value;
+
+  google.script.run
+
+    .withSuccessHandler(
+      showARSummary
+    )
+
+    .getAccountsReceivableSummary(
+
+      type,
+
+      document.getElementById(
+        "arMonth"
+      ).value,
+
+      document.getElementById(
+        "arYear"
+      ).value,
+
+      document.getElementById(
+        "arDate"
+      ).value
+
+    );
+
+}
+
+
+
+function showARSummary(data){
+
+  const reportType =
+
+    document.getElementById(
+      "arReportType"
+    ).value;
+
+  if(data.length == 0){
+
+    document.getElementById(
+      "arSummaryResult"
+    ).innerHTML =
+
+      '<div style="' +
+      'padding:20px;' +
+      'margin-top:15px;' +
+      'border:1px solid #d6d6d6;' +
+      'background:#f8f9fa;' +
+      'border-radius:8px;' +
+      'text-align:center;' +
+      'font-size:16px;' +
+      'font-weight:bold;' +
+      'color:#666;">' +
+
+      'No Pending Accounts Receivable' +
+
+      '<br><br>' +
+
+      '<span style="font-size:13px;font-weight:normal;">' +
+
+      'There are currently no outstanding receivables for the selected period.' +
+
+      '</span>' +
+
+      '</div>';
+
+    document.getElementById(
+      "arCustomerSection"
+    ).style.display =
+      "none";
+
+    return;
+
+  }
+
+  let coverage = "";
+
+  if(reportType == "MONTH"){
+
+    const month =
+      document.getElementById(
+        "arMonth"
+      ).options[
+        document.getElementById(
+          "arMonth"
+        ).selectedIndex
+      ].text;
+
+    const year =
+      document.getElementById(
+        "arYear"
+      ).value;
+
+    coverage =
+      month + " " + year;
+
+  }
+  else{
+
+    coverage =
+      document.getElementById(
+        "arDate"
+      ).value;
+
+  }
+
+  let html =
+
+    '<div style="font-size:18px;font-weight:bold;">' +
+    'Accounts Receivable Summary' +
+    '</div>' +
+
+    '<div style="margin-top:5px;margin-bottom:15px;">' +
+    '<b>Coverage Period:</b> ' +
+    coverage +
+    '</div>' +
+
+    '<div style="margin-bottom:10px;">' +
+
+    '<b>Total Customers:</b> ' +
+    data.length +
+
+    '</div>';
+
+  html +=
+
+    '<table style="width:100%; border-collapse:collapse;">';
+
+  html +=
+
+    '<tr>' +
+
+    '<th>Customer</th>' +
+
+    '<th>No. of SOs</th>' +
+
+    '<th>Total Amount Due</th>' +
+
+    '</tr>';
+
+  let ddl =
+    document.getElementById(
+      "arCustomerDropdown"
+    );
+
+  ddl.innerHTML =
+    '<option value="">Select Customer</option>';
+
+  let grandTotal = 0;
+  let totalSOs = 0;
+
+  data.forEach(function(item){
+
+    grandTotal +=
+      Number(item.amountDue);
+
+    totalSOs +=
+      Number(item.soCount);
+
+    html +=
+
+      '<tr>' +
+
+      '<td>' +
+      item.customer +
+      '</td>' +
+
+      '<td style="text-align:center;">' +
+      item.soCount +
+      '</td>' +
+
+      '<td style="text-align:right;">₱' +
+      formatAmount(
+        item.amountDue
+      ) +
+      '</td>' +
+
+      '</tr>';
+
+    ddl.innerHTML +=
+
+      '<option value="' +
+
+      item.customer +
+
+      '">' +
+
+      item.customer +
+
+      '</option>';
+
+  });
+
+  html +=
+
+    '<tr style="background:#f2f2f2;font-weight:bold;">' +
+
+    '<td>TOTAL</td>' +
+
+    '<td style="text-align:center;">' +
+    totalSOs +
+    '</td>' +
+
+    '<td style="text-align:right;">₱' +
+    formatAmount(
+      grandTotal
+    ) +
+    '</td>' +
+
+    '</tr>';
+
+  html += '</table>';
+
+  document.getElementById(
+    "arSummaryResult"
+  ).innerHTML =
+    html;
+
+  document.getElementById(
+    "arCustomerSection"
+  ).style.display =
+    "block";
+
+}
+
+let currentCustomerARHtml = "";
+
+</script>

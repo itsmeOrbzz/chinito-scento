@@ -1,0 +1,1518 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+  <base target="_top">
+
+ <?!= include('Styles'); ?>
+
+
+</head>
+
+<body>
+
+<div class="container">
+
+<h1>Chinito Scento ERP</h1>
+
+<button onclick="showDashboard()">
+  Dashboard
+</button>
+
+<hr>
+
+<?!= include('Dashboard'); ?>
+
+<!-- PRODUCTION COMPLETION SECTION -->
+
+<div id="productionCompletionSection" style="display:none;">
+
+    <h2>Production Completion</h2>
+
+    <table>
+
+        <tr>
+            <td>Batch</td>
+            <td>
+                <select id="completionBatch"
+                        onchange="loadBatchDetails()">
+                </select>
+            </td>
+        </tr>
+
+        <tr>
+            <td>Product</td>
+            <td>
+                <input type="text"
+                       id="completionProduct"
+                       readonly>
+            </td>
+        </tr>
+
+        <tr>
+            <td>Expected Bottles</td>
+            <td>
+                <input type="text"
+                       id="completionExpected"
+                       readonly>
+            </td>
+        </tr>
+
+        <tr>
+            <td>Actual Bottles</td>
+            <td>
+                <input type="number"
+                       id="completionActual">
+            </td>
+        </tr>
+
+        <tr>
+            <td>Remarks</td>
+            <td>
+                <input type="text"
+                       id="completionRemarks"
+                       style="width:300px;">
+            </td>
+        </tr>
+
+    </table>
+
+    <br>
+
+    <button onclick="completeProductionBatch()">
+        Complete Batch
+    </button>
+
+    <button onclick="showDashboard()">
+        Back
+    </button>
+
+    <br><br>
+
+    <div id="completionMessage"></div>
+
+</div>
+
+<!-- PURCHASE SECTION -->
+
+<div id="purchaseSection" style="display:none;">
+
+    <h2>Purchase Entry</h2>
+
+    <table class="form-table">
+
+        <tr>
+            <td>Date *</td>
+            <td>
+                <input type="date" id="purchaseDate">
+            </td>
+        </tr>
+
+        <tr>
+            <td>Supplier *</td>
+            <td>
+                <input type="text"
+                       id="supplier"
+                       style="width:250px;">
+            </td>
+        </tr>
+
+        <tr>
+            <td>Invoice No *</td>
+            <td>
+                <input type="text"
+                       id="invoiceNo"
+                       style="width:150px;">
+            </td>
+        </tr>
+
+        <tr>
+            <td>Material Code *</td>
+            <td>
+                <select id="materialCode"
+                        onchange="showMaterialDescription()">
+                </select>
+            </td>
+        </tr>
+
+        <tr>
+            <td>Description</td>
+            <td>
+                <input type="text"
+                       id="materialDescription"
+                       readonly
+                       style="width:250px;">
+            </td>
+        </tr>
+
+        <tr>
+            <td>Quantity Purchased *</td>
+            <td>
+                <input type="number"
+                       id="quantityPurchased">
+            </td>
+        </tr>
+
+        <tr id="volumeRow" style="display:none;">
+            <td>Volume *</td>
+            <td>
+                <input type="number"
+                       id="volume">
+
+                ml
+            </td>
+        </tr>
+
+        <tr>
+            <td>Unit</td>
+            <td>
+                <span id="materialUnit"></span>
+            </td>
+        </tr>
+
+        <tr>
+            <td>Unit Cost *</td>
+            <td>
+                <input type="text"
+                       id="unitCost"
+                       value="0.00"
+                       onblur="formatField(this)"
+                       style="text-align:right;">
+            </td>
+        </tr>
+
+        <tr>
+            <td>Remarks</td>
+            <td>
+                <input type="text"
+                       id="remarks"
+                       style="width:250px;">
+            </td>
+        </tr>
+
+        <tr>
+    <td>Payment Type</td>
+    <td>
+        <select id="paymentType"
+                onchange="togglePurchaseCreditFields()">
+
+            <option value="CASH">
+                CASH
+            </option>
+
+            <option value="CREDIT">
+                CREDIT
+            </option>
+
+        </select>
+    </td>
+</tr>
+
+<tr id="creditModeRow"
+    style="display:none;">
+
+    <td>Payment Mode</td>
+
+    <td>
+
+        <select id="paymentMode"
+        onchange="togglePaymentMode()">
+
+    <option value="ONETIME">
+        One Time Payment
+    </option>
+
+    <option value="INSTALLMENT">
+        Installment
+    </option>
+
+</select>
+
+    </td>
+
+</tr>
+
+<tr id="creditorRow"
+    style="display:none;">
+
+    <td>Creditor</td>
+
+    <td>
+
+        <input type="text"
+               id="creditor">
+
+    </td>
+
+</tr>
+
+<tr id="creditStartDateRow"
+    style="display:none;">
+
+    <td>Credit Start Date</td>
+
+    <td>
+
+        <input type="date"
+               id="creditStartDate">
+
+    </td>
+
+</tr>
+
+<tr id="installmentMonthsRow"
+    style="display:none;">
+
+    <td>Installment Months</td>
+
+    <td>
+
+        <input type="number"
+               id="installmentMonths"
+                oninput="calculateCreditPurchase()"
+                style="text-align:right;">
+    </td>
+
+    </tr>
+
+    <tr id="monthlyAmortRow"
+        style="display:none;">
+
+        <td>Monthly Amortization</td>
+
+        <td>
+
+            <input type="text"
+       id="monthlyAmortization"
+       oninput="calculateCreditPurchase()"
+       onblur="formatField(this);calculateCreditPurchase()"
+       style="text-align:right;">           
+        </td>
+
+    </tr>
+
+    <tr id="totalDueRow"
+        style="display:none;">
+
+        <td>Total Amount Due</td>
+
+        <td>
+
+            <input type="text"
+       id="totalAmountDue"
+       onblur="formatField(this)"
+       style="text-align:right;">
+        </td>
+
+    </tr>
+
+    </table>
+
+    <br>
+
+    <hr>
+
+    <h3>Purchase Items</h3>
+
+    <table
+      class="summary-table">
+
+    <thead>
+
+    <tr>
+<th></th>
+
+    <th>Material</th>
+
+    <th>Qty</th>
+
+    <th>Cost</th>
+
+    </tr>
+
+    </thead>
+
+    <tbody id="purchaseSummaryBody">
+
+    </tbody>
+
+    </table>
+
+    <br>
+
+    <b>Total Purchase :</b>
+
+    ₱<span id="purchaseTotal">
+
+    0.00
+
+    </span>
+
+    <br><br>
+
+    <button
+    onclick="addPurchaseItem()">
+
+    Add Item
+
+    </button>
+
+    <br><br>
+
+    <button onclick="savePurchase()">
+        Save Purchase
+    </button>
+
+    <button onclick="showDashboard()">
+        Back
+    </button>
+
+    <br><br>
+
+    <div id="message"></div>
+
+</div>
+
+<!-- PRODUCTION SECTION -->
+
+<div id="productionSection" style="display:none;">
+
+  <h2>Create Production Batch</h2>
+
+  <table>
+
+      <tr>
+          <td>Product Code</td>
+          <td>
+              <select id="productCode">
+    <option value="">
+        Select Product
+    </option>
+</select>
+          </td>
+      </tr>
+
+      <tr>
+          <td>Date Mixed</td>
+          <td>
+              <input type="date" id="dateMixed">
+          </td>
+      </tr>
+
+      <tr>
+          <td>Expected Bottles</td>
+          <td>
+              <input type="number" id="expectedBottles">
+          </td>
+      </tr>
+
+      <tr>
+          <td>Maceration Days</td>
+          <td>
+              <input type="number"
+                    id="macerationDays"
+                    min="7"
+                    oninput="validateMacerationDays()">
+          </td>
+      </tr>
+      <tr>
+          <td></td>
+          <td>
+              <div id="macerationWarning"
+                  style="
+                    color:red;
+                    font-size:12px;
+                    font-weight:bold;">
+              </div>
+          </td>
+      </tr>
+
+  </table>
+
+  <br>
+
+<div id="batchMessage"
+     style="
+       margin:10px 0;
+       padding:10px;
+       border:1px solid #ccc;
+       white-space:pre-line;
+       display:none;
+     ">
+</div>
+
+  <button onclick="saveProductionBatch()">
+      Save Batch
+  </button>
+
+  <button onclick="showDashboard()">
+      Back
+  </button>
+
+  <br><br>
+
+</div>
+
+<!-- CUSTOMER SECTION -->
+
+<div id="customerSection" style="display:none;">
+
+    <h2>Customer Maintenance</h2>
+
+    <table class="form-table">
+
+        <tr>
+            <td>Customer Code</td>
+            <td>
+                <input type="text"
+                       id="customerCode"
+                       disabled
+                       style="
+                       background:#e9ecef;
+                       color:#666;
+                       cursor:not-allowed;">
+            </td>
+        </tr>
+
+        <tr>
+            <td>Customer Name</td>
+            <td>
+                <input type="text"
+                       id="customerName"
+                       style="width:400px;">
+            </td>
+        </tr>
+
+        <tr>
+            <td>Customer Type</td>
+            <td>
+                <select id="customerType"
+                        onchange="updateCreditTerms()">
+
+                    <option value="Distributor">
+                        Distributor
+                    </option>
+
+                    <option value="Reseller">
+                        Reseller
+                    </option>
+
+                    <option value="Walk-In">
+                        Walk-In
+                    </option>
+
+                </select>
+            </td>
+        </tr>
+
+        <tr>
+            <td>Credit Terms</td>
+            <td>
+                <input type="number"
+                       id="creditTerms"
+                       value="15"
+                       readonly>
+            </td>
+        </tr>
+
+        <tr>
+            <td>Credit Limit</td>
+            <td>
+                <input type="text"
+                       id="creditLimit"
+                       value="0.00"
+                       onblur="formatField(this)"
+                       style="text-align:right;">
+            </td>
+        </tr>
+
+    </table>
+
+    <br>
+
+    <button onclick="saveCustomer()">
+        Save Customer
+    </button>
+
+    <button onclick="showDashboard()">
+        Back
+    </button>
+
+    <br><br>
+
+    <div id="customerMessage"></div>
+
+</div>
+
+<!-- CUSTOMER SALES ANALYTICS SECTION -->
+
+<div id="customerAnalyticsSection"
+     style="display:none;">
+
+<h2>Customer Sales Analytics</h2>
+
+Month:
+
+<select id="analyticsMonth">
+
+<option value="1">January</option>
+<option value="2">February</option>
+<option value="3">March</option>
+<option value="4">April</option>
+<option value="5">May</option>
+<option value="6">June</option>
+<option value="7">July</option>
+<option value="8">August</option>
+<option value="9">September</option>
+<option value="10">October</option>
+<option value="11">November</option>
+<option value="12">December</option>
+
+</select>
+
+Year:
+
+<input type="number"
+       id="analyticsYear"
+       value="2026">
+
+<button onclick="generateCustomerAnalytics()">
+Generate Report
+</button>
+
+<hr>
+
+<div id="analyticsResult"></div>
+      <br>
+
+      <div id="customerProductSection"
+          style="display:none;">
+
+        <h3>
+          Customer Purchase Breakdown
+        </h3>
+
+        <select id="customerAnalyticsSelect"
+                onchange="loadCustomerProducts()">
+        </select>
+
+        <br><br>
+
+        <div id="customerProductsResult">
+        </div>
+
+      </div>
+</div>
+
+<!-- SALES ORDERS SECTION -->
+
+<div id="salesOrdersSection" style="display:none;">
+
+    <h2>Sales Order Entry</h2>
+
+    <div class="sales-container">
+
+        <!-- LEFT SIDE -->
+
+        <div class="sales-left">
+
+            <table class="form-table">
+
+                <tr>
+                    <td colspan="2">
+                        <strong>Customer Information</strong>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td>Customer</td>
+                    <td>
+                        <select id="customerSelect"
+                                onchange="loadCustomerDetails()">
+                        </select>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td>Customer Type</td>
+                    <td>
+                        <input type="text"
+                               id="soCustomerType"
+                               readonly>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td>Credit Terms</td>
+                    <td>
+                        <input type="text"
+                               id="soCreditTerms"
+                               readonly>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td colspan="2">
+                        <hr>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td colspan="2">
+                        <strong>Product Information</strong>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td>Product</td>
+                    <td>
+                        <select id="productSelect"
+                                onchange="loadFGAvailability()">
+                        </select>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td>Available FG</td>
+                    <td>
+                        <input type="text"
+                               id="availableFG"
+                               readonly>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td>Quantity</td>
+                    <td>
+                        <input type="number"
+                               id="salesQty"
+                               onkeyup="validateQuantity()">
+                    </td>
+                </tr>
+
+                <tr>
+                    <td></td>
+                    <td>
+                        <div id="qtyValidation"
+                             style="
+                                color:red;
+                                font-weight:bold;
+                                font-size:12px;">
+                        </div>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td>Unit Price</td>
+                    <td>
+                        <input type="text"
+                               id="salesPrice"
+                               onblur="formatField(this)">
+                    </td>
+                </tr>
+
+                <tr>
+                    <td>Payment Form</td>
+                    <td>
+
+                        <select id="paymentForm">
+
+                            <option value="CASH">
+                                CASH
+                            </option>
+
+                            <option value="GCASH">
+                                GCASH
+                            </option>
+
+                            <option value="BANK_TRANSFER">
+                                BANK TRANSFER
+                            </option>
+
+                            <option value="CREDIT">
+                                CREDIT
+                            </option>
+
+                        </select>
+
+                    </td>
+                </tr>
+
+            </table>
+
+            <br>
+
+            <button onclick="addToOrder()">
+                Add To Order
+            </button>
+
+            <button onclick="showDashboard()">
+                Back
+            </button>
+
+        </div>
+
+        <!-- RIGHT SIDE -->
+
+        <div class="sales-right">
+
+            <div class="summary-box">
+
+                <h3>Sales Order Summary</h3>
+
+                <table class="summary-table">
+
+                    <thead>
+
+                        <tr>
+                            <th></th>
+                            <th>Product</th>
+                            <th>Qty</th>
+                            <th>Price</th>
+                            <th>Amount</th>
+                        </tr>
+
+                    </thead>
+
+                    <tbody id="orderSummaryBody">
+
+                    </tbody>
+
+                </table>
+
+                <br>
+
+                <div class="summary-total">
+
+                    Customer :
+                    <span id="summaryCustomer">
+                        -
+                    </span>
+
+                    <br><br>
+
+                    Payment Form :
+                    <span id="summaryPayment">
+                        -
+                    </span>
+
+                    <br><br>
+
+                    Total Qty :
+                    <span id="totalQty">
+                        0
+                    </span>
+
+                    <br><br>
+
+                    Total Amount :
+                    ₱<span id="totalAmount">
+                        0.00
+                    </span>
+
+                </div>
+
+                <br>
+
+                <button onclick="removeSelectedLine()">
+                    Remove Selected
+                </button>
+
+                <button onclick="clearSalesOrder()">
+                    Clear Order
+                </button>
+
+                <button onclick="saveSalesTransaction()">
+                    Save Sales Order
+                </button>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <br>
+
+    <div id="salesOrderMessage"></div>
+
+</div>
+
+<!-- SALES RETURN SECTION -->
+
+<div id="salesReturnSection"
+     style="display:none;">
+
+  <h2>Sales Return Entry</h2>
+
+  <table>
+
+    <tr>
+      <td>SO Number</td>
+
+      <td>
+
+        <select id="returnSONumber"
+                onchange="loadReturnSO()">
+
+        </select>
+
+      </td>
+
+    </tr>
+
+    <tr>
+
+      <td>Customer Code</td>
+
+      <td>
+
+        <input id="returnCustomerCode"
+               readonly>
+
+      </td>
+
+    </tr>
+
+    <tr>
+
+      <td>Customer Name</td>
+
+      <td>
+
+        <input id="returnCustomerName"
+               readonly>
+
+      </td>
+
+    </tr>
+
+    <tr>
+
+      <td>Product</td>
+
+      <td>
+
+        <select id="returnProduct">
+
+        </select>
+
+      </td>
+
+    </tr>
+
+    <tr>
+
+      <td>Qty Returned</td>
+
+      <td>
+
+        <input type="number"
+               id="returnQty">
+
+      </td>
+
+    </tr>
+
+    <tr>
+
+      <td>Reason</td>
+
+      <td>
+
+        <input id="returnReason">
+
+      </td>
+
+    </tr>
+
+  </table>
+
+  <br>
+
+  <button onclick="saveSalesReturnEntry()">
+    Save Return
+  </button>
+
+  <br><br>
+
+  <div id="returnMessage"></div>
+
+
+
+
+</div>
+
+
+<?!= include('InvoicesH'); ?>
+
+<!-- ACCOUNTS RECEIVABLE SECTION -->
+
+<div id="accountsReceivableSection"
+     style="display:none;">
+
+<h2>Accounts Receivable Report</h2>
+
+Report Type:
+
+<select id="arReportType">
+    <option value="MONTH">
+        Monthly Summary
+    </option>
+
+    <option value="ASOF">
+        As Of Date
+    </option>
+</select>
+
+&nbsp;
+
+Month:
+
+<select id="arMonth">
+
+<option value="1">January</option>
+<option value="2">February</option>
+<option value="3">March</option>
+<option value="4">April</option>
+<option value="5">May</option>
+<option value="6">June</option>
+<option value="7">July</option>
+<option value="8">August</option>
+<option value="9">September</option>
+<option value="10">October</option>
+<option value="11">November</option>
+<option value="12">December</option>
+
+</select>
+
+Year:
+
+<input type="number"
+       id="arYear"
+       value="2026">
+
+As Of Date:
+
+<input type="date"
+       id="arDate">
+
+<button onclick="generateARReport()">
+Generate Report
+</button>
+
+<button onclick="printARSummary()">
+Print Report
+</button>
+
+<hr>
+
+<div id="arSummaryResult"></div>
+
+<br>
+
+<div id="arCustomerSection"
+     style="display:none;">
+
+<h3>Customer AR Breakdown</h3>
+
+<select id="arCustomerDropdown"
+        onchange="generateCustomerARBreakdown()">
+</select>
+
+<button onclick="printCustomerARReport()">
+Print Customer Report
+</button>
+
+<button onclick="viewCustomerARReport()">
+View Detailed Report
+</button>
+
+
+<br><br>
+
+<div id="arCustomerResult"></div>
+
+</div>
+
+</div>
+
+<!-- COLLECTIONS SECTION -->
+
+<div id="collectionsSection"
+     style="display:none;">
+
+  <h2>Collection Entry</h2>
+
+  <table>
+
+    <tr>
+      <td>Sales Order</td>
+      <td>
+        <select id="collectionSONumber"
+                onchange="loadCollectionDetails()">
+        </select>
+      </td>
+    </tr>
+
+    <tr>
+      <td>Customer</td>
+      <td>
+        <input type="text"
+               id="collectionCustomer"
+               readonly>
+      </td>
+    </tr>
+
+    <tr>
+      <td>Order Amount</td>
+      <td>
+        <input type="text"
+               id="collectionOrderAmount"
+               readonly>
+      </td>
+    </tr>
+
+    <tr>
+      <td>Balance</td>
+      <td>
+        <input type="text"
+               id="collectionBalance"
+               readonly>
+      </td>
+    </tr>
+
+    <tr>
+      <td>Amount Collected</td>
+      <td>
+        <input type="number"
+               id="collectionAmount">
+      </td>
+    </tr>
+
+    <tr>
+      <td>Payment Method</td>
+      <td>
+
+        <select id="collectionMethod">
+          <option>CASH</option>
+          <option>GCASH</option>
+          <option>BANK_TRANSFER</option>
+        </select>
+
+      </td>
+    </tr>
+
+    <tr>
+      <td>Reference No</td>
+      <td>
+        <input type="text"
+               id="collectionRef">
+      </td>
+    </tr>
+
+    <tr>
+      <td>Remarks</td>
+      <td>
+        <input type="text"
+               id="collectionRemarks">
+      </td>
+    </tr>
+
+  </table>
+
+  <br>
+
+  <button onclick="saveCollection()">
+    Save Collection
+  </button>
+
+  <br><br>
+
+  <div id="collectionMessage"></div>
+
+</div>
+
+
+<!-- ACCOUNTS PAYABLE SECTION -->
+
+<div id="accountsPayableSection"
+     style="display:none;">
+
+<h2>Accounts Payable Report</h2>
+
+Report Type:
+
+<select id="apReportType">
+
+    <option value="MONTH">
+        Monthly Summary
+    </option>
+
+    <option value="ASOF">
+        As Of Date
+    </option>
+
+</select>
+
+Month:
+
+<select id="apMonth">
+
+<option value="1">January</option>
+<option value="2">February</option>
+<option value="3">March</option>
+<option value="4">April</option>
+<option value="5">May</option>
+<option value="6">June</option>
+<option value="7">July</option>
+<option value="8">August</option>
+<option value="9">September</option>
+<option value="10">October</option>
+<option value="11">November</option>
+<option value="12">December</option>
+
+</select>
+
+Year:
+
+<input type="number"
+       id="apYear"
+       value="2026">
+
+As Of Date:
+
+<input type="date"
+       id="apDate">
+
+<button onclick="generateAPReport()">
+Generate Report
+</button>
+
+<hr>
+
+<div id="apSummaryResult"></div>
+
+</div>
+
+
+
+<script>
+
+
+
+
+/* ===================================
+   GLOBAL UTILITIES
+=================================== */
+
+
+
+
+
+
+
+/* ===================================
+   NAVIGATION
+=================================== */
+
+
+
+
+
+
+
+function calculateCreditPurchase(){
+
+  const mode =
+    document.getElementById(
+      "paymentMode"
+    ).value;
+
+  if(mode != "INSTALLMENT"){
+    return;
+  }
+
+  const months =
+    Number(
+      document.getElementById(
+        "installmentMonths"
+      ).value
+    ) || 0;
+
+  const monthly =
+    parseFloat(
+      document.getElementById(
+        "monthlyAmortization"
+      ).value
+      .replace(/,/g,'')
+    ) || 0;
+
+  const totalDue =
+    months * monthly;
+
+  document.getElementById(
+    "totalAmountDue"
+  ).value =
+    formatAmount(totalDue);
+
+}
+
+
+
+function showProductCostingReport(){
+
+  google.script.run
+
+    .withSuccessHandler(
+      displayProductCostingReport
+    )
+
+    .getProductCostingReport();
+
+}
+
+function displayProductCostingReport(data){
+
+  let html =
+
+    "<h2>Product Profitability Report</h2>";
+
+  html += "<table>";
+
+  html +=
+
+    "<tr>" +
+
+    "<th>Product</th>" +
+
+    "<th>Cost</th>" +
+
+    "<th>Selling Price</th>" +
+
+    "<th>Gross Profit</th>" +
+
+    "<th>Margin %</th>" +
+
+    "</tr>";
+
+  for(let i=1;i<data.length;i++){
+
+    html +=
+
+      "<tr>" +
+
+      "<td>" +
+      data[i][0] +
+      "</td>" +
+
+      "<td>" +
+      formatAmount(data[i][8]) +
+      "</td>" +
+
+      "<td>" +
+      formatAmount(data[i][9]) +
+      "</td>" +
+
+      "<td>" +
+      formatAmount(data[i][10]) +
+      "</td>" +
+
+      "<td>" +
+      Number(data[i][11]).toFixed(2) +
+      "%" +
+      "</td>" +
+
+      "</tr>";
+
+  }
+
+  html += "</table>";
+
+  document.getElementById(
+    "result"
+  ).innerHTML = html;
+
+}
+
+
+
+
+
+
+
+
+
+
+/* ===================================
+   GLOBAL VARIABLES
+=================================== */
+
+let rawMaterials = [];
+
+
+let purchaseCart = [];
+
+/* ===================================
+   CUSTOMERS
+=================================== */
+
+function showCustomers(){
+
+  hideAllSections();
+
+  document.getElementById(
+    "customerSection"
+  ).style.display = "block";
+
+  updateCreditTerms();
+
+}
+
+
+
+
+
+function loadProductVelocityReport(){
+
+  google.script.run
+
+    .withSuccessHandler(
+      showProductVelocityReport
+    )
+
+    .withFailureHandler(function(error){
+
+      alert(
+        "ERROR:\n\n" +
+        error.message
+      );
+
+    })
+
+    .getProductVelocityReport();
+
+}
+
+function showProductVelocityReport(data){
+
+  let html =
+    "<h2>Product Velocity Report</h2>";
+
+  html +=
+    "<table>" +
+    "<tr>" +
+    "<th>Product</th>" +
+    "<th>1 Week</th>" +
+    "<th>2 Weeks</th>" +
+    "<th>3 Weeks</th>" +
+    "<th>1 Month</th>" +
+    "<th>2 Months</th>" +
+    "<th>3 Months</th>" +
+    "<th>Status</th>" +
+    "</tr>";
+
+  for(let product in data){
+
+    html +=
+      "<tr>" +
+
+      "<td>"+product+"</td>" +
+
+      "<td>"+data[product].week1+"</td>" +
+
+      "<td>"+data[product].week2+"</td>" +
+
+      "<td>"+data[product].week3+"</td>" +
+
+      "<td>"+data[product].month1+"</td>" +
+
+      "<td>"+data[product].month2+"</td>" +
+
+      "<td>"+data[product].month3+"</td>" +
+
+      "<td>"+data[product].status+"</td>" +
+
+      "</tr>";
+
+  }
+
+  html += "</table>";
+
+  document.getElementById(
+    "result"
+  ).innerHTML = html;
+
+}
+
+
+
+/* ===================================
+   SALES ORDER
+=================================== */
+
+function validateQuantity(){
+
+  const qty = Number(
+    document.getElementById(
+      "salesQty"
+    ).value
+  );
+
+  const available = Number(
+    document.getElementById(
+      "availableFG"
+    )
+    .value
+    .replace(/,/g,'')
+  );
+
+  if(qty > available){
+
+    document.getElementById(
+      "qtyValidation"
+    ).innerHTML =
+      "⚠ QUANTITY REQUESTED IS MORE THAN THE AVAILABLE STOCK.";
+
+  }
+  else{
+
+    document.getElementById(
+      "qtyValidation"
+    ).innerHTML = "";
+
+  }
+
+}
+
+
+
+let purchaseItems = [];
+
+
+
+</script>
+
+</div>
+
+<?!= include('UtilitiesJS'); ?>
+<?!= include('NavigationJS'); ?>
+
+<?!= include('PurchaseJS'); ?>
+<?!= include('ProductionJS'); ?>
+<?!= include('CustomerJS'); ?>
+<?!= include('SalesJS'); ?>
+<?!= include('SalesReturnJS'); ?>
+
+<?!= include('InvoiceJS'); ?>
+
+<?!= include('CollectionJS'); ?>
+<?!= include('ARJS'); ?>
+<?!= include('APJS'); ?>
+
+<?!= include('ReportsJS'); ?>
+
+</body>
+
+</html>

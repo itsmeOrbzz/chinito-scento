@@ -1,0 +1,246 @@
+<script>
+
+function loadSalesReturnSONumbers(){
+
+  google.script.run
+
+    .withSuccessHandler(function(data){
+
+      let ddl =
+        document.getElementById(
+          "returnSONumber"
+        );
+
+      ddl.innerHTML =
+        '<option value="">Select SO</option>';
+
+      data.forEach(function(item){
+
+        ddl.innerHTML +=
+
+          '<option value="' +
+          item.soNumber +
+          '">' +
+
+          item.soNumber +
+
+          '</option>';
+
+      });
+
+    })
+
+    .getSalesOrderNumbers();
+
+}
+
+function loadReturnSO(){
+
+  const soNumber =
+    document.getElementById(
+      "returnSONumber"
+    ).value;
+
+  google.script.run
+
+    .withSuccessHandler(function(data){
+
+      document.getElementById(
+        "returnCustomerCode"
+      ).value =
+        data.customerCode;
+
+      document.getElementById(
+        "returnCustomerName"
+      ).value =
+        data.customerName;
+
+      loadReturnProducts();
+
+    })
+
+    .getSalesReturnSO(
+      soNumber
+    );
+
+}
+
+
+
+function loadReturnProducts(){
+
+  const soNumber =
+    document.getElementById(
+      "returnSONumber"
+    ).value;
+
+  google.script.run
+
+    .withSuccessHandler(function(data){
+
+      console.log(data);
+
+      let ddl =
+        document.getElementById(
+          "returnProduct"
+        );
+
+      ddl.innerHTML =
+        '<option value="">Select Product</option>';
+
+      if(!data || data.length === 0){
+
+        alert(
+          "No products found for SO: " +
+          soNumber
+        );
+
+        return;
+
+      }
+
+      data.forEach(function(item){
+
+        let option =
+          document.createElement(
+            "option"
+          );
+
+        option.value =
+          item.productCode;
+
+        option.text =
+          item.productName +
+          " (Qty Sold: " +
+          item.qtySold +
+          ")";
+
+        ddl.add(option);
+
+      });
+
+    })
+
+    .withFailureHandler(function(error){
+
+      alert(
+        "PRODUCT ERROR:\n\n" +
+        error.message
+      );
+
+    })
+
+    .getSalesOrderProducts(
+      soNumber
+    );
+
+}
+
+
+function saveSalesReturnEntry(){
+
+  const soNumber =
+    document.getElementById(
+      "returnSONumber"
+    ).value;
+
+  const customerCode =
+    document.getElementById(
+      "returnCustomerCode"
+    ).value;
+
+  const customerName =
+    document.getElementById(
+      "returnCustomerName"
+    ).value;
+
+  const productDropdown =
+    document.getElementById(
+      "returnProduct"
+    );
+
+  const productCode =
+    productDropdown.value;
+
+  const productName =
+    productDropdown.options[
+      productDropdown.selectedIndex
+    ].text;
+
+  const qtyReturned =
+    Number(
+      document.getElementById(
+        "returnQty"
+      ).value
+    );
+
+  const reason =
+    document.getElementById(
+      "returnReason"
+    ).value;
+
+  if(!soNumber){
+    alert("Select SO Number");
+    return;
+  }
+
+  if(!productCode){
+    alert("Select Product");
+    return;
+  }
+
+  if(qtyReturned <= 0){
+    alert("Enter Qty Returned");
+    return;
+  }
+
+  const data = {
+
+    soNumber: soNumber,
+
+    customerCode: customerCode,
+
+    customerName: customerName,
+
+    productCode: productCode,
+
+    productName: productName,
+
+    qtyReturned: qtyReturned,
+
+    reason: reason,
+
+    encodedBy: "Edson"
+
+  };
+
+  google.script.run
+
+    .withSuccessHandler(function(msg){
+
+      document.getElementById(
+        "returnMessage"
+      ).innerHTML =
+        "<span style='color:green'>" +
+        msg +
+        "</span>";
+
+    })
+
+    .withFailureHandler(function(error){
+
+      alert(
+        "RETURN ERROR:\n\n" +
+        error.message
+      );
+
+    })
+
+    .saveSalesReturn(data);
+
+}
+
+
+
+
+</script>

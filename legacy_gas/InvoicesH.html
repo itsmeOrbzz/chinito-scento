@@ -1,0 +1,40 @@
+<!-- SALES INVOICE MAINTENANCE -->
+
+<div id="invoiceSection"
+     style="display:none;">
+
+  <h2>Sales Invoice Maintenance</h2>
+
+  <div id="invoiceMessage"></div>
+
+  <hr>
+
+  <h3>Invoice Inquiry</h3>
+
+  <select id="invoiceList">
+    <option value="">
+      Select Invoice
+    </option>
+  </select>
+
+  <button onclick="loadSelectedInvoice()">
+    View Invoice
+  </button>
+
+  <button onclick="window.print();">
+    Print Invoice
+  </button>
+
+  <br><br>
+
+  <div id="invoicePreview"
+       style="
+         margin-top:20px;
+         background:white;
+         padding:20px;
+         border:1px solid #ccc;
+         min-height:300px;
+       ">
+  </div>
+
+</div>

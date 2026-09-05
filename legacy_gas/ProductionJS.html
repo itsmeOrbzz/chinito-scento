@@ -1,0 +1,391 @@
+<script>
+
+  function validateMacerationDays(){
+
+  const value =
+    Number(
+      document.getElementById(
+        "macerationDays"
+      ).value
+    );
+
+  const warning =
+    document.getElementById(
+      "macerationWarning"
+    );
+
+  if(value < 7){
+
+    warning.innerHTML =
+      "⚠ Minimum maceration period is 7 days.";
+
+  }
+  else{
+
+    warning.innerHTML = "";
+
+  }
+
+}
+
+
+
+
+
+function loadReadyBatches(){
+
+  google.script.run
+
+    .withSuccessHandler(function(data){
+
+      readyBatchList = data || [];
+
+      let dropdown =
+        document.getElementById(
+          "completionBatch"
+        );
+
+      dropdown.innerHTML =
+        '<option value="">Select Batch</option>';
+
+      if(data.length === 0){
+
+        document.getElementById(
+          "completionMessage"
+        ).innerHTML =
+
+          '<div style="' +
+          'padding:15px;' +
+          'border:1px solid #d6d6d6;' +
+          'background:#f8f9fa;' +
+          'border-radius:8px;' +
+          'color:#666;">' +
+
+          'No production batches available for completion.' +
+
+          '</div>';
+
+        return;
+
+      }
+
+      data.forEach(function(batch){
+
+        dropdown.innerHTML +=
+          '<option value="' +
+          batch.row +
+          '">' +
+          batch.batchNo +
+          '</option>';
+
+      });
+
+    })
+
+    .getReadyBatches();
+
+}
+
+function loadBatchDetails(){
+
+  const rowNumber =
+    document.getElementById(
+      "completionBatch"
+    ).value;
+
+  const batch =
+    readyBatchList.find(
+      b => String(b.row) === String(rowNumber)
+    );
+
+  if(!batch){
+    return;
+  }
+
+  document.getElementById(
+    "completionProduct"
+  ).value =
+    batch.productCode;
+
+  document.getElementById(
+    "completionExpected"
+  ).value =
+    batch.expectedBottles;
+
+}
+
+function completeProductionBatch(){
+
+  const rowNumber =
+    document.getElementById(
+      "completionBatch"
+    ).value;
+
+  const actualBottles =
+    Number(
+      document.getElementById(
+        "completionActual"
+      ).value
+    );
+
+  const remarks =
+    document.getElementById(
+      "completionRemarks"
+    ).value;
+
+  if(!rowNumber){
+
+    alert("Select batch.");
+    return;
+
+  }
+
+  if(actualBottles <= 0){
+
+    alert(
+      "Actual Bottles must be greater than zero."
+    );
+
+    return;
+
+  }
+
+  google.script.run
+
+  .withSuccessHandler(function(msg){
+
+    document.getElementById(
+      "completionMessage"
+    ).innerHTML = msg;
+
+    loadReadyBatches();
+
+  })
+
+  .withFailureHandler(function(error){
+
+    alert(
+      "ERROR:\n\n" +
+      error.message
+    );
+
+  })
+
+  .completeBatch(
+    rowNumber,
+    actualBottles,
+    "Edson",
+    remarks
+  );
+
+}
+
+function saveProductionBatch(){
+
+
+
+      const batch = {
+
+      productCode:
+        document.getElementById(
+          "productCode"
+        ).value,
+
+      dateMixed:
+        document.getElementById(
+          "dateMixed"
+        ).value,
+
+      expectedBottles:
+        Number(
+          document.getElementById(
+            "expectedBottles"
+          ).value
+        ),
+
+      macerationDays:
+        Number(
+          document.getElementById(
+            "macerationDays"
+          ).value
+        )
+
+    };
+
+
+
+  if(!batch.productCode){
+
+    alert("Product Code is required.");
+    return;
+
+  }
+
+  if(!batch.dateMixed){
+
+    alert("Date Mixed is required.");
+    return;
+
+  }
+
+  if(batch.expectedBottles <= 0){
+
+    alert(
+      "Expected Bottles must be greater than zero."
+    );
+
+    return;
+
+  }
+
+
+  if(batch.macerationDays < 7){
+
+    document.getElementById(
+  "macerationWarning"
+).innerHTML =
+  "⚠ Minimum maceration period is 7 days.";
+
+return;
+
+  }
+
+
+
+  google.script.run
+  .withSuccessHandler(function(result){
+
+    const msg =
+  document.getElementById(
+    "batchMessage"
+  );
+
+msg.style.display = "block";
+if(result.success){
+
+    msg.style.background =
+      "#d4edda";
+
+    msg.style.color =
+      "#155724";
+
+    msg.innerHTML =
+      "✅ " +
+      result.message +
+      "<br><br>" +
+      "Batch No: " +
+      result.batchNo +
+      "<br>" +
+      "Ready Date: " +
+      result.readyDate;
+
+}
+else{
+
+    msg.style.background =
+      "#f8d7da";
+
+    msg.style.color =
+      "#721c24";
+
+    msg.innerText =
+      "❌ " +
+      result.message;
+
+}
+
+})
+  .saveBatch(batch);
+
+}
+
+function printBatchTag(batchNo){
+
+  google.script.run
+
+    .withSuccessHandler(function(data){
+
+      const w =
+        window.open();
+
+      w.document.write(
+
+        "<html><body style='font-family:Arial;padding:20px'>"+
+        "<h3>CHINITO SCENTO</h3>"+
+        "<hr>"+
+
+        "<b>Batch No:</b> " +
+        data.batchNo +
+        "<br><br>"+
+
+        "<b>Product:</b> " +
+        data.productCode +
+        "<br><br>"+
+
+        "<b>Date Mixed:</b> " +
+        data.dateMixed +
+        "<br><br>"+
+
+        "<b>Maceration:</b> " +
+        data.macerationDays +
+        " Days<br><br>"+
+
+        "<b>Ready Date:</b> " +
+        data.readyDate +
+        "<br><br>"+
+
+        "<b>Expected Bottles:</b> " +
+        data.expectedBottles +
+        "<br><br>"+
+
+        "<b>Status:</b> " +
+        data.status +
+
+        "</body></html>"
+
+      );
+
+      w.document.close();
+      w.print();
+
+    })
+
+    .getBatchTag(batchNo);
+
+}
+
+
+function loadProductionProducts(){
+
+  google.script.run
+    .withSuccessHandler(function(data){
+
+      let dropdown =
+        document.getElementById(
+          "productCode"
+        );
+
+      dropdown.innerHTML =
+        '<option value="">Select Product</option>';
+
+      data.forEach(function(product){
+
+        dropdown.innerHTML +=
+          '<option value="' +
+          product.code +
+          '">' +
+          product.code +
+          ' - ' +
+          product.name +
+          '</option>';
+
+      });
+
+    })
+    .getProductList();
+
+}
+
+let readyBatchList = [];
+
+</script>

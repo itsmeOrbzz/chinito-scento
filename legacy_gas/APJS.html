@@ -1,0 +1,147 @@
+<script>
+
+function generateAPReport(){
+
+  google.script.run
+
+    .withSuccessHandler(
+      showAPSummary
+    )
+
+    .getAccountsPayableSummary(
+
+      document.getElementById(
+        "apReportType"
+      ).value,
+
+      document.getElementById(
+        "apMonth"
+      ).value,
+
+      document.getElementById(
+        "apYear"
+      ).value,
+
+      document.getElementById(
+        "apDate"
+      ).value
+
+    );
+
+}
+
+function showAPSummary(data){
+
+  if(data.length == 0){
+
+    document.getElementById(
+      "apSummaryResult"
+    ).innerHTML =
+
+      '<div style="' +
+      'padding:20px;' +
+      'margin-top:15px;' +
+      'border:1px solid #d6d6d6;' +
+      'background:#f8f9fa;' +
+      'border-radius:8px;' +
+      'text-align:center;' +
+      'font-size:16px;' +
+      'font-weight:bold;' +
+      'color:#666;">' +
+
+      'No Pending Accounts Payable' +
+
+      '<br><br>' +
+
+      '<span style="font-size:13px;font-weight:normal;">' +
+
+      'There are currently no outstanding payables for the selected period.' +
+
+      '</span>' +
+
+      '</div>';
+
+    return;
+
+  }
+
+  let html =
+    "<h3>Accounts Payable Summary</h3>";
+
+  html +=
+
+    "<table>" +
+
+    "<tr>" +
+
+    "<th>Creditor</th>" +
+
+    "<th>Transactions</th>" +
+
+    "<th>Amount Due</th>" +
+
+    "<th>Max Days Due</th>" +
+
+    "</tr>";
+
+  let total = 0;
+
+  data.forEach(function(item){
+
+    total +=
+      Number(item.amountDue);
+
+    html +=
+
+      "<tr>" +
+
+      "<td>" +
+      item.creditor +
+      "</td>" +
+
+      "<td>" +
+      item.transactions +
+      "</td>" +
+
+      "<td>₱" +
+      formatAmount(
+        item.amountDue
+      ) +
+      "</td>" +
+
+      "<td>" +
+      item.maxDaysDue +
+      "</td>" +
+
+      "</tr>";
+
+  });
+
+  html +=
+
+    "<tr style='font-weight:bold'>" +
+
+    "<td colspan='2'>TOTAL</td>" +
+
+    "<td>₱" +
+
+    formatAmount(total) +
+
+    "</td>" +
+
+    "<td></td>" +
+
+    "</tr>";
+
+  html +=
+    "</table>";
+
+  document.getElementById(
+    "apSummaryResult"
+  ).innerHTML =
+    html;
+
+}
+
+
+</script>
