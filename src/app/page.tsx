@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { localStoreAPI } from '@/lib/store';
+import { localStoreAPI, syncFromSupabase } from '@/lib/store';
 import { Product, PaymentType, CustomerType, SalesOrderLine, SalesOrder } from '@/types/erp';
 import {
   ShoppingBag,
@@ -125,6 +125,7 @@ export default function PublicStorefront() {
     };
 
     refreshProducts();
+    syncFromSupabase().then(() => refreshProducts());
 
     const handleCustomStoreUpdate = (e: Event) => {
       const customEvt = e as CustomEvent;

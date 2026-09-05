@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { localStoreAPI } from '@/lib/store';
+import { localStoreAPI, syncFromSupabase } from '@/lib/store';
 import { Product, RawMaterial, Recipe } from '@/types/erp';
 import { ScrollText, Plus, Edit2, FlaskConical, Trash2 } from 'lucide-react';
 
@@ -26,6 +26,7 @@ export default function RecipesPage() {
 
   useEffect(() => {
     loadData();
+    syncFromSupabase().then(() => loadData());
   }, []);
 
   const loadData = () => {

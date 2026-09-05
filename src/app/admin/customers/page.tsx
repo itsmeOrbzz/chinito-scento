@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { localStoreAPI } from '@/lib/store';
+import { localStoreAPI, syncFromSupabase } from '@/lib/store';
 import { Customer, CustomerType, CustomerStatus } from '@/types/erp';
 import { Users, Plus, Edit2, Search, Trash2 } from 'lucide-react';
 
@@ -21,6 +21,7 @@ export default function CustomersPage() {
 
   useEffect(() => {
     loadCustomers();
+    syncFromSupabase().then(() => loadCustomers());
   }, []);
 
   const loadCustomers = () => {

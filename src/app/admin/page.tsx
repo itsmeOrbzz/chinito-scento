@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { localStoreAPI } from '@/lib/store';
+import { localStoreAPI, syncFromSupabase } from '@/lib/store';
 import { SalesOrder, ProductionBatch, InventoryMovement, RawMaterial } from '@/types/erp';
 import { CheckCircle2, XCircle, Clock, Sparkles, DollarSign, PackageCheck, FlaskConical, AlertTriangle, Printer, Plus, ShoppingCart, Boxes } from 'lucide-react';
 
@@ -15,6 +15,7 @@ export default function AdminDashboard() {
 
   useEffect(() => {
     refreshData();
+    syncFromSupabase().then(() => refreshData());
   }, []);
 
   const refreshData = () => {

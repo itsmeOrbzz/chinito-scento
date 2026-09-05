@@ -49,6 +49,49 @@ export const setLocalStore = <T>(key: string, data: T[]): void => {
   window.dispatchEvent(new CustomEvent('chinito_store_updated', { detail: { key } }));
 };
 
+// Automatic Supabase Cloud Data Pulling
+export const syncFromSupabase = async (): Promise<boolean> => {
+  if (!supabase || typeof window === 'undefined') return false;
+  try {
+    let updated = false;
+
+    const { data: productsData } = await supabase.from('products').select('*');
+    if (productsData && productsData.length > 0) {
+      setLocalStore('products', productsData);
+      updated = true;
+    }
+
+    const { data: rawMaterialsData } = await supabase.from('raw_materials').select('*');
+    if (rawMaterialsData && rawMaterialsData.length > 0) {
+      setLocalStore('materials', rawMaterialsData);
+      updated = true;
+    }
+
+    const { data: recipesData } = await supabase.from('recipes').select('*');
+    if (recipesData && recipesData.length > 0) {
+      setLocalStore('recipes', recipesData);
+      updated = true;
+    }
+
+    const { data: customersData } = await supabase.from('customers').select('*');
+    if (customersData && customersData.length > 0) {
+      setLocalStore('customers', customersData);
+      updated = true;
+    }
+
+    const { data: salesOrdersData } = await supabase.from('sales_orders').select('*');
+    if (salesOrdersData && salesOrdersData.length > 0) {
+      setLocalStore('sales_orders', salesOrdersData);
+      updated = true;
+    }
+
+    return updated;
+  } catch (err) {
+    console.warn('Error pulling data from Supabase:', err);
+    return false;
+  }
+};
+
 export const localStoreAPI = {
   getProducts: () => getLocalStore<Product>('products', INITIAL_PRODUCTS),
   saveProduct: (product: Product) => {

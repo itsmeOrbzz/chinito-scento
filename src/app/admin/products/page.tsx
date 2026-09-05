@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { localStoreAPI } from '@/lib/store';
+import { localStoreAPI, syncFromSupabase } from '@/lib/store';
 import { Product, ItemStatus } from '@/types/erp';
 import { Package, Plus, Edit2, Search, Trash2, Upload, CheckCircle2 } from 'lucide-react';
 
@@ -22,6 +22,7 @@ export default function ProductsPage() {
 
   useEffect(() => {
     loadProducts();
+    syncFromSupabase().then(() => loadProducts());
   }, []);
 
   const loadProducts = () => {

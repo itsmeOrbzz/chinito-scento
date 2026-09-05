@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { localStoreAPI } from '@/lib/store';
+import { localStoreAPI, syncFromSupabase } from '@/lib/store';
 import { Product, RawMaterial, InventoryMovement } from '@/types/erp';
 import { Boxes, PackageCheck, AlertTriangle, Plus, Trash2, Search, Info } from 'lucide-react';
 
@@ -19,6 +19,7 @@ export default function InventoryPage() {
 
   useEffect(() => {
     loadData();
+    syncFromSupabase().then(() => loadData());
   }, []);
 
   const loadData = () => {

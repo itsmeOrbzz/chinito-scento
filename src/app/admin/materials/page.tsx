@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { localStoreAPI } from '@/lib/store';
+import { localStoreAPI, syncFromSupabase } from '@/lib/store';
 import { RawMaterial, ItemStatus } from '@/types/erp';
 import { Boxes, Plus, Edit2, Search, Trash2 } from 'lucide-react';
 
@@ -20,6 +20,7 @@ export default function RawMaterialsPage() {
 
   useEffect(() => {
     loadMaterials();
+    syncFromSupabase().then(() => loadMaterials());
   }, []);
 
   const loadMaterials = () => {
