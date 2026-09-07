@@ -92,8 +92,7 @@ export default function ProductsPage() {
 
   const handleDelete = (codeToDelete: string) => {
     if (!confirm(`Are you sure you want to delete perfume scent ${codeToDelete}?`)) return;
-    const updated = products.filter(p => p.code !== codeToDelete);
-    localStorage.setItem('chinito_products', JSON.stringify(updated));
+    localStoreAPI.deleteProduct(codeToDelete);
     alert(`Product ${codeToDelete} deleted.`);
     loadProducts();
   };

@@ -284,5 +284,45 @@ export const localStoreAPI = {
     list.unshift({ ...col, id: `col_${Date.now()}` });
     setLocalStore('collections', list);
     return col;
+  },
+
+  deleteProduct: (code: string) => {
+    const list = getLocalStore<Product>('products', INITIAL_PRODUCTS).filter(p => p.code !== code);
+    setLocalStore('products', list);
+    if (supabase) {
+      supabase.from('products').delete().eq('code', code).then(({ error }) => {
+        if (error) console.warn('Supabase delete product warning:', error.message);
+      });
+    }
+  },
+
+  deleteRawMaterial: (code: string) => {
+    const list = getLocalStore<RawMaterial>('materials', INITIAL_RAW_MATERIALS).filter(m => m.code !== code);
+    setLocalStore('materials', list);
+    if (supabase) {
+      supabase.from('raw_materials').delete().eq('code', code).then(({ error }) => {
+        if (error) console.warn('Supabase delete raw material warning:', error.message);
+      });
+    }
+  },
+
+  deleteRecipe: (productCode: string) => {
+    const list = getLocalStore<Recipe>('recipes', INITIAL_RECIPES).filter(r => r.product_code !== productCode);
+    setLocalStore('recipes', list);
+    if (supabase) {
+      supabase.from('recipes').delete().eq('product_code', productCode).then(({ error }) => {
+        if (error) console.warn('Supabase delete recipe warning:', error.message);
+      });
+    }
+  },
+
+  deleteCustomer: (code: string) => {
+    const list = getLocalStore<Customer>('customers', INITIAL_CUSTOMERS).filter(c => c.code !== code);
+    setLocalStore('customers', list);
+    if (supabase) {
+      supabase.from('customers').delete().eq('code', code).then(({ error }) => {
+        if (error) console.warn('Supabase delete customer warning:', error.message);
+      });
+    }
   }
 };

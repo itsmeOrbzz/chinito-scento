@@ -49,8 +49,7 @@ export default function RawMaterialsPage() {
 
   const handleDelete = (codeToDelete: string) => {
     if (!confirm(`Are you sure you want to delete raw material ${codeToDelete}?`)) return;
-    const updated = materials.filter(m => m.code !== codeToDelete);
-    localStorage.setItem('chinito_materials', JSON.stringify(updated));
+    localStoreAPI.deleteRawMaterial(codeToDelete);
     alert(`Material ${codeToDelete} deleted.`);
     loadMaterials();
   };

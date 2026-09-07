@@ -72,8 +72,7 @@ export default function RecipesPage() {
 
   const handleDelete = (productCodeToDelete: string) => {
     if (!confirm(`Are you sure you want to delete the recipe formula for ${productCodeToDelete}?`)) return;
-    const updated = recipes.filter(r => r.product_code !== productCodeToDelete);
-    localStorage.setItem('chinito_recipes', JSON.stringify(updated));
+    localStoreAPI.deleteRecipe(productCodeToDelete);
     alert(`Recipe formula for ${productCodeToDelete} deleted.`);
     loadData();
   };

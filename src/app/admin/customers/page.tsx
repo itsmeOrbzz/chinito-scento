@@ -53,8 +53,7 @@ export default function CustomersPage() {
 
   const handleDelete = (codeToDelete: string) => {
     if (!confirm(`Are you sure you want to delete customer account ${codeToDelete}?`)) return;
-    const updated = customers.filter(c => c.code !== codeToDelete);
-    localStorage.setItem('chinito_customers', JSON.stringify(updated));
+    localStoreAPI.deleteCustomer(codeToDelete);
     alert(`Customer ${codeToDelete} deleted.`);
     loadCustomers();
   };
